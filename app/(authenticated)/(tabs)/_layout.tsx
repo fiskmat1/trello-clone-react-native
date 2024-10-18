@@ -1,48 +1,30 @@
 import { Colors } from '@/constants/Colors';
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Image } from 'react-native';
+import { QrCode, Bell, User, House, Search } from 'lucide-react-native'; // Importing Lucide icons
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Canvas, DiffRect, rect, rrect } from "@shopify/react-native-skia";
+import { View } from 'react-native';
 
 const Layout = () => {
   return (
+    
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.primary,
-        headerStyle: {
-          backgroundColor: Colors.primary,
-        },
-        headerTitleStyle: {
-          color: 'white',
-        },
+        headerShown: true,
+        tabBarStyle: {
+          elevation: 0, // Remove shadow on Android
+          shadowOpacity: 0, // Remove shadow on iOS
+          borderTopWidth: 0, // Remove the top border from the tab bar
+        }
       }}>
       <Tabs.Screen
         name="boards"
         options={{
           headerShown: false,
-          title: 'Boards',
-          tabBarIcon: ({ size, color, focused }) => (
-            <Image
-              style={{ width: size, height: size }}
-              source={
-                focused
-                  ? require('@/assets/images/logo-icon-blue.png')
-                  : require('@/assets/images/logo-icon-neutral.png')
-              }
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="my-cards"
-        options={{
-          title: 'My Cards',
+          title: 'Home',
           tabBarIcon: ({ size, color }) => (
-            <MaterialCommunityIcons
-              name="view-dashboard-variant-outline"
-              size={size}
-              color={color}
-            />
+            <House size={size} color={color} />
           ),
         }}
       />
@@ -50,28 +32,52 @@ const Layout = () => {
         name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ size, color }) => <Ionicons name="search" size={size} color={color} />,
+          tabBarIcon: ({ size, color }) => (
+            <Search size={size} color={color} /> // Using Lucide's QrCode icon
+          ),
         }}
+      />
+      <Tabs.Screen
+        name="scan"
+        options={{
+          title: 'Scan',
+          tabBarIcon: ({ size, color }) => (
+            <QrCode size={size} color={color} />
+          ),
+        }}
+        
       />
       <Tabs.Screen
         name="notifications"
         options={{
+          headerStyle: {
+            elevation: 0, // Remove shadow on Android
+            shadowOpacity: 0, // Remove shadow on iOS
+            borderBottomWidth: 0, // Hide the bottom border
+          },
           title: 'Notifications',
           tabBarIcon: ({ size, color }) => (
-            <Ionicons name="notifications-outline" size={size} color={color} />
+            <Bell size={size} color={color} /> // Using Lucide's Bell icon for notifications
           ),
         }}
       />
       <Tabs.Screen
         name="account"
         options={{
+          headerStyle: {
+            elevation: 0, // Remove shadow on Android
+            shadowOpacity: 0, // Remove shadow on iOS
+            borderBottomWidth: 0, // Hide the bottom border
+          },
           title: 'Account',
           tabBarIcon: ({ size, color }) => (
-            <FontAwesome name="user-circle" size={size} color={color} />
+            <User size={size} color={color} /> // Using Lucide's User icon for the profile
           ),
         }}
       />
     </Tabs>
+  
   );
 };
+
 export default Layout;

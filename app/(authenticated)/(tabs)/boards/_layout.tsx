@@ -2,24 +2,18 @@ import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { Image, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Layout = () => {
   const router = useRouter();
 
   return (
+    
     <Stack>
       <Stack.Screen
         name="index"
         options={{
-          headerStyle: {
-            backgroundColor: Colors.primary,
-          },
-          headerTitle: () => (
-            <Image
-              style={{ width: 120, height: 50, resizeMode: 'contain' }}
-              source={require('@/assets/images/trello-logo-gradient-white.png')}
-            />
-          ),
+          headerShown: false
         }}
       />
       <Stack.Screen
@@ -49,6 +43,7 @@ const Layout = () => {
         }}
       />
     </Stack>
+   
   );
 };
 export default Layout;

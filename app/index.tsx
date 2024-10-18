@@ -2,6 +2,8 @@ import { Colors } from '@/constants/Colors';
 import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import 'react-native-get-random-values';
+
 import * as WebBrowser from 'expo-web-browser';
 import {
   BottomSheetModal,
@@ -12,6 +14,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { ModalType } from '@/types/enums';
 
 import AuthModal from '@/components/AuthModal';
+import AnimatedIntro from '@/components/AnimatedIntro';
 
 export default function Index() {
   const { top } = useSafeAreaInsets();
@@ -67,37 +70,48 @@ export default function Index() {
   );
 
   return (
-    <BottomSheetModalProvider>
-      <View style={[styles.container, { paddingTop: top + 30 }]}>
-        <Image source={require('@/assets/images/login/trello.png')} style={styles.image} />
-        <Text style={styles.introText}>Move teamwork forward - even on the go</Text>
-        <View style={styles.bottomContainer}>
-          <TouchableOpacity
-            style={[styles.btn, { backgroundColor: 'white' }]}
-            onPress={() => showModal(ModalType.Login)}>
-            <Text style={[styles.btnText, { color: Colors.primary }]}>Log in</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.btn]} onPress={() => showModal(ModalType.SignUp)}>
-            <Text style={[styles.btnText, { color: '#fff' }]}>Sign Up</Text>
-          </TouchableOpacity>
+<BottomSheetModalProvider>
+      <View style={styles.container}>
+        {/* Animated Background */}
+        <AnimatedIntro />
 
-          <Text style={styles.description}>
-            By signing up, you agree to the{' '}
-            <Text style={styles.link} onPress={openLink}>
-              User Notice
-            </Text>{' '}
-            and{' '}
-            <Text style={styles.link} onPress={openLink}>
-              Privacy Policy
+        {/* Content Above Background */}
+        <View style={styles.content}>
+          
+
+          <View style={styles.bottomContainer}>
+          <Text style={styles.introText}>
+            Get exclusive store deals and rewards – all in one app.
+          </Text>
+            <TouchableOpacity
+              style={[styles.btn, { backgroundColor: 'white' }]}
+              onPress={() => showModal(ModalType.Login)}
+            >
+              <Text style={[styles.btnText, { color: 'black' }]}>Log in</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.btn} onPress={() => showModal(ModalType.SignUp)}>
+              <Text style={[styles.btnText, { color: '#fff' }]}>Sign Up</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.description}>
+              By signing up, you agree to the{' '}
+              <Text style={styles.link} onPress={openLink}>
+                User Notice
+              </Text>{' '}
+              and{' '}
+              <Text style={styles.link} onPress={openLink}>
+                Privacy Policy
+              </Text>
+              .
             </Text>
-            .
-          </Text>
 
-          <Text style={styles.link} onPress={openActionSheet}>
-            Can't log in our sign up?
-          </Text>
+            <Text style={styles.link} onPress={openActionSheet}>
+              Can't log in or sign up?
+            </Text>
+          </View>
         </View>
       </View>
+
       <BottomSheetModal
         ref={bottomSheetModalRef}
         index={0}
@@ -105,7 +119,8 @@ export default function Index() {
         handleComponent={null}
         backdropComponent={renderBackdrop}
         enableOverDrag={false}
-        enablePanDownToClose>
+        enablePanDownToClose
+      >
         <AuthModal authType={authType} />
       </BottomSheetModal>
     </BottomSheetModalProvider>
@@ -115,24 +130,33 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.primary,
-    alignItems: 'center',
+    backgroundColor: 'white',
   },
-  image: {
-    height: 450,
-    paddingHorizontal: 40,
-    resizeMode: 'contain',
+  background: {
+    ...StyleSheet.absoluteFillObject, // This will ensure it covers the whole screen
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'flex-end', // Pushes the content to the bottom
+    alignItems: 'center',
   },
   introText: {
     fontWeight: '600',
     color: 'white',
     fontSize: 17,
     padding: 30,
+    textAlign: 'center',
   },
   bottomContainer: {
     width: '100%',
     paddingHorizontal: 40,
+    paddingBottom: 40,
     gap: 10,
+    color: 'black',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: 'black',
+  
   },
   btn: {
     padding: 10,

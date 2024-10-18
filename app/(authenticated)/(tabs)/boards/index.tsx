@@ -1,88 +1,89 @@
-import DropdownPlus from '@/components/DropdownPlus';
+import React, { useEffect, useState } from 'react';
+import {
+  ScrollView,
+  Alert,
+  ActivityIndicator,
+  View,
+  StyleSheet,
+  RefreshControl,
+} from 'react-native';
+import HeaderTabs from '@/components/HeaderTabs'; // Represents the Delivery/Pickup tabs
+import SearchBar from '@/components/SearchBar'; // A search bar for entering a city
+import Categories from '@/components/Categories'; // Scrollable categories section
 import { Colors } from '@/constants/Colors';
-import { useSupabase } from '@/context/SupabaseContext';
-import { Board } from '@/types/enums';
-import { Link, Stack, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, StyleSheet, RefreshControl } from 'react-native';
+import tailwind from 'tailwind-react-native-classnames';
+import { SafeAreaView } from 'react-native';
 
 const Page = () => {
-  const { getBoards } = useSupabase();
-  const [boards, setBoards] = useState<Board[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
+  const [city, setCity] = useState('San Francisco');
+  const [activeTab, setActiveTab] = useState('Delivery'); // Represents "Delivery" or "Pickup"
+  const [restaurantData, setRestaurantData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  useFocusEffect(
-    useCallback(() => {
-      loadBoards();
-    }, [])
-  );
+  const getRestaurants = async () => {
+    const YELP_API_KEY = 'YOUR_YELP_API_KEY';
+    const yelpUrl = `https://api.yelp.com/v3/businesses/search?term=restaurants&location=${city}`;
 
-  const loadBoards = async () => {
-    const data = await getBoards!();
-    setBoards(data);
+    const apiOptions = {
+      headers: {
+        Authorization: `Bearer ${YELP_API_KEY}`,
+      },
+    };
+
+    setLoading(true);
+    try {
+      const res = await fetch(yelpUrl, apiOptions);
+      const json = await res.json();
+      setRestaurantData(
+        json?.businesses?.filter((business) =>
+          business.transactions.includes(activeTab.toLowerCase())
+        )
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Could not fetch restaurant data');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const ListItem = ({ item }: { item: Board }) => (
-    <Link
-      href={`/(authenticated)/board/${item.id}?bg=${encodeURIComponent(item.background)}`}
-      style={styles.listItem}
-      key={`${item.id}`}
-      asChild>
-      <TouchableOpacity>
-        <View style={[styles.colorBlock, { backgroundColor: item.background }]} />
-        <Text style={{ fontSize: 16 }}>{item.title}</Text>
-      </TouchableOpacity>
-    </Link>
-  );
+  useEffect(() => {
+    getRestaurants();
+  }, [city, activeTab]);
 
   return (
+    <SafeAreaView style={{flex: 1, backgroundColor: 'white' }} edges={['top']}>
     <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          headerRight: () => <DropdownPlus />,
-        }}
-      />
-      <FlatList
-        contentContainerStyle={boards.length > 0 && styles.list}
-        data={boards}
-        keyExtractor={(item) => `${item.id}`}
-        renderItem={ListItem}
-        ItemSeparatorComponent={() => (
-          <View
-            style={{
-              height: StyleSheet.hairlineWidth,
-              backgroundColor: Colors.grey,
-              marginStart: 50,
-            }}
+      {/* Header Tabs */}
+      <HeaderTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* Search Bar */}
+      <SearchBar city={city} setCity={setCity} />
+
+      {/* Scrollable Categories & Content */}
+      <ScrollView showsVerticalScrollIndicator={false} style={tailwind`flex-1`}>
+        <Categories />
+
+        {/* Loading Indicator */}
+        {loading && (
+          <ActivityIndicator
+            size="large"
+            color={Colors.primary}
+            style={tailwind`mt-2 mb-6`}
           />
         )}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={loadBoards} />}
-      />
+
+        {/* Placeholder for Restaurant Items */}
+        {/* Map over the restaurantData array and show items in the future */}
+      </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 16,
     flex: 1,
-  },
-  list: {
-    borderColor: Colors.grey,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  listItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
     backgroundColor: '#fff',
-    gap: 10,
-  },
-  colorBlock: {
-    width: 30,
-    height: 30,
-    borderRadius: 4,
   },
 });
 
