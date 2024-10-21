@@ -9,7 +9,7 @@ import { MapPin } from 'lucide-react-native';
 const SearchBar = ({ setCity, city }) => {
 
     return (
-        <View style={tailwind`flex-row mt-3 px-4 pb-3 border-b border-gray-100 border-b-2`}>
+        <View style={tailwind`flex-row mt-3  pb-3 border-b border-gray-100 border-b-0`}>
             <GooglePlacesAutocomplete
                 placeholder={city || "Search"}
                 nearbyPlacesAPI="GooglePlacesSearch"
@@ -37,7 +37,7 @@ const SearchBar = ({ setCity, city }) => {
                     },
                     textInputContainer: {
                         backgroundColor: '#F3F4F6',
-                        borderRadius: 40,
+                        borderRadius: 10,
                         justifyContent: 'center',
                     }
                 }}

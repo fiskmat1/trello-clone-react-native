@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, SafeAreaView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, SafeAreaView, Image, useWindowDimensions } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
 import { Header, getHeaderTitle, useHeaderHeight } from '@react-navigation/elements';
 import { BlurView } from 'expo-blur';
@@ -58,11 +58,14 @@ const Page = () => {
     }, 2000);
   }, []);
 
+  const { width: deviceWidth } = useWindowDimensions();
   // Animated styles for the search bar
   const searchBarStyle = useAnimatedStyle(() => {
+    
     return {
-      width: withTiming(isSearchOpen ? 300 : 0, { duration: 300 }), // Animate width
-      opacity: withTiming(isSearchOpen ? 1 : 0, { duration: 300 }), // Animate opacity
+      width: withTiming(isSearchOpen ? deviceWidth - 70 : 0, { duration: 300 }), // Animate width
+      opacity: withTiming(isSearchOpen ? 1 : 0, { duration: 300 }),
+      marginLeft: 10, // Animate opacity
     };
   });
 

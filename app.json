@@ -1,9 +1,8 @@
 {
   "expo": {
-    "name": "trelloClone",
-    "slug": "trelloClone",
+    "name": "ClientClub",
+    "slug": "ClientClub",
     "version": "1.0.0",
-    "jsEngine": "jsc",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",

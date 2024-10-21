@@ -16,8 +16,8 @@ serve(async (req: Request) => {
     const email = email_addresses[0].email_address;
 
     const { data, error } = await supabase
-      .from('users')
-      .insert({ id, email, avatar_url: image_url, first_name });
+      .from('Appuser')
+      .insert({ id, email, name: first_name });
 
     if (error) {
       return new Response(JSON.stringify(error), { status: 400 });

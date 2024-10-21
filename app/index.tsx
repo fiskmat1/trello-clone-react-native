@@ -16,6 +16,7 @@ import { ModalType } from '@/types/enums';
 import AuthModal from '@/components/AuthModal';
 import AnimatedIntro from '@/components/AnimatedIntro';
 
+
 export default function Index() {
   const { top } = useSafeAreaInsets();
   const { showActionSheetWithOptions } = useActionSheet();

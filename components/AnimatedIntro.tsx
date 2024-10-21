@@ -16,8 +16,8 @@ import { ReText } from 'react-native-redash';
 const content = [
   {
     title: "Let's shop.",
-    bg: Colors.lime,
-    fontColor: Colors.pink,
+    bg: Colors.clientclub,
+    fontColor: Colors.sky,
   },
   {
     title: "Rewards.",
@@ -37,7 +37,7 @@ const content = [
   {
     title: 'ClientClub.',
     bg: Colors.green,
-    fontColor: Colors.pink,
+    fontColor: Colors.sky,
   },
 ];
 

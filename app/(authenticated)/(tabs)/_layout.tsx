@@ -16,10 +16,11 @@ const Layout = () => {
           elevation: 0, // Remove shadow on Android
           shadowOpacity: 0, // Remove shadow on iOS
           borderTopWidth: 0, // Remove the top border from the tab bar
-        }
+        },
+        tabBarActiveTintColor: 'black',
       }}>
       <Tabs.Screen
-        name="boards"
+        name="index"
         options={{
           headerShown: false,
           title: 'Home',
@@ -35,6 +36,7 @@ const Layout = () => {
           tabBarIcon: ({ size, color }) => (
             <Search size={size} color={color} /> // Using Lucide's QrCode icon
           ),
+          
         }}
       />
       <Tabs.Screen
@@ -44,6 +46,13 @@ const Layout = () => {
           tabBarIcon: ({ size, color }) => (
             <QrCode size={size} color={color} />
           ),
+          tabBarStyle: {
+            backgroundColor: 'transparent', // Transparent background for scan tab
+            position: 'absolute', // Make the tab bar float
+            borderTopWidth: 0, // Remove the top border
+            elevation: 0, // Remove shadow on Android
+            shadowOpacity: 0, // Remove shadow on iOS
+          },
         }}
         
       />
