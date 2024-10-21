@@ -15,6 +15,11 @@ import { ReText } from 'react-native-redash';
 
 const content = [
   {
+    title: 'ClientClub.',
+    bg: Colors.green,
+    fontColor: Colors.sky,
+  },
+  {
     title: "Let's shop.",
     bg: Colors.clientclub,
     fontColor: Colors.sky,
@@ -34,11 +39,7 @@ const content = [
     bg: Colors.teal,
     fontColor: Colors.yellow,
   },
-  {
-    title: 'ClientClub.',
-    bg: Colors.green,
-    fontColor: Colors.sky,
-  },
+  
 ];
 
 const AnimatedIntro = () => {

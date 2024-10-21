@@ -4,6 +4,7 @@ import { TouchableOpacity, View, Alert, Share as RNShare } from 'react-native';
 import { ArrowLeft, Heart, Share as ShareIcon } from 'lucide-react-native';
 import React, { useState } from 'react';
 
+
 const Layout = () => {
   usePush();
   const router = useRouter();
@@ -51,6 +52,8 @@ const Layout = () => {
         }}
       />
 
+      
+
       <Stack.Screen
         name="organization/[id]"
         options={{
@@ -65,7 +68,7 @@ const Layout = () => {
           // Custom back button using lucide-react-native
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
-              <ArrowLeft stroke="black" size={20} />
+              <ArrowLeft stroke="black" size={22} />
             </TouchableOpacity>
           ),
 
@@ -77,17 +80,40 @@ const Layout = () => {
                 <Heart
                   stroke={isFavorited ? 'red' : 'black'}
                   fill={isFavorited ? 'red' : 'none'}
-                  size={20}
+                  size={22}
                 />
               </TouchableOpacity>
               {/* Share/Export icon */}
               <TouchableOpacity onPress={handleShare}>
-                <ShareIcon stroke="black" size={20} />
+                <ShareIcon stroke="black" size={22} />
               </TouchableOpacity>
             </View>
           ),
         }}
       />
+      
+      <Stack.Screen
+        name="mapscreen/index"
+        options={{
+          headerShown: true,
+          headerTransparent: true,
+          title: 'Utforska', // Set custom title
+          headerBackTitleVisible: false, // Hide the back title
+          
+          headerTitleStyle: {
+            color: '#333', // Customize the header text color
+            fontWeight: 'bold', // Customize header title font
+          },
+          // Custom back button
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
+              <ArrowLeft stroke="black" size={22} />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+
+       
     </Stack>
   );
 };
