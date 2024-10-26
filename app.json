@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.supersimon.trelloClone",
+      "bundleIdentifier": "com.jacoblarsson.ClientClub",
       "entitlements": {
         "aps-environment": "development"
       }
@@ -26,7 +26,8 @@
       },
       "package": "com.supersimon.trelloClone",
       "permissions": [
-        "android.permission.RECORD_AUDIO"
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA"
       ]
     },
     "web": {
@@ -45,7 +46,6 @@
           "microphonePermission": "The app accesses your microphone to let you record audio."
         }
       ],
-  
       [
         "expo-camera",
         {
@@ -63,7 +63,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "d432b8fc-58a1-4258-a0cc-dc0a227d0071"
+        "projectId": "92a5323d-e689-4560-973a-3b20a9695f1d"
       }
     }
   }

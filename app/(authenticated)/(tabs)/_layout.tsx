@@ -6,10 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Canvas, DiffRect, rect, rrect } from "@shopify/react-native-skia";
 import { View } from 'react-native';
 import tw from 'tailwind-react-native-classnames';
+import { StatusBar } from 'expo-status-bar';
 
 const Layout = () => {
   return (
-    
+    <>
+    <StatusBar style="dark" backgroundColor="#FFFFFF" translucent={false} />
     <Tabs
       screenOptions={{
         headerShown: true,
@@ -87,7 +89,7 @@ const Layout = () => {
         }}
       />
     </Tabs>
-  
+    </>
   );
 };
 

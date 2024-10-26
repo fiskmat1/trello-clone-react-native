@@ -102,7 +102,7 @@ const InitialLayout = () => {
 const RootLayoutNav = () => {
   return (
     <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
-      <StatusBar style="light" />
+      <StatusBar style="dark"  />
       <ActionSheetProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <InitialLayout />
