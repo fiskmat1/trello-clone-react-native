@@ -55,6 +55,7 @@ const SearchBar = ({ setCity, city }: SearchBarProps) => {
     if (selectedLocation) {
       // Navigate to the map screen with the selected coordinates
       navigation.navigate('mapscreen/index', { coordinates: selectedLocation });
+      setSearchText('')
     }
   };
 

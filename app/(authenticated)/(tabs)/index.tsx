@@ -19,8 +19,9 @@ import { Colors } from '@/constants/Colors';
 const Page = () => {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, userId} = useAuth();
   const navigation = useNavigation();
+
 
   // Fetch Organizations from Supabase Edge Function
   const fetchOrganizations = async () => {
@@ -62,7 +63,11 @@ const Page = () => {
   };
 
   const handleOrgPress = (id) => {
-    navigation.navigate('organization/[id]', { id }); // Navigate to the organization page with the ID
+    if (userId) {
+      navigation.navigate('organization/[id]', { id, appuserId: userId }); // Pass both organization id and appuserId
+    } else {
+      console.error('User is not signed in');
+    }
   };
 
   const handleAccountPress = () => {

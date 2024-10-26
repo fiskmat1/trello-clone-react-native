@@ -1,20 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ActivityIndicator, Text, Image, TouchableOpacity, Share as RNShare } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, StyleSheet, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import * as Location from 'expo-location';
 import axios from 'axios';
-import { useLocalSearchParams } from 'expo-router'; // Import useLocalSearchParams for getting coordinates
-import Modal from 'react-native-modal'; // Use react-native-modal instead of BottomSheet
-import { Heart, ShareIcon } from 'lucide-react-native'; // Import the Heart icon
+import { useLocalSearchParams, useNavigation } from 'expo-router'; // Added useNavigation
+import { Locate } from 'lucide-react-native';
+import { useAuth } from '@clerk/clerk-expo';
 
-const MAPBOX_API_KEY = 'pk.eyJ1IjoiZmlza21hdCIsImEiOiJjbTF3ZmYyYXUwbmgyMmpzamlrNXVtbjdrIn0.717Y9Y6vuzKRdjlfRxaKkw';
+const MAPBOX_API_KEY = 'pk.eyJ1IjoiZmlza21hdCIsImEiOiJjbTF3ZmYyYXUwbmgyMmpzamlrNXVtbjdrIn0.717Y9Y6vuzKRdjlfRxaKkw'; // Add your Mapbox API key here
 
 const MapScreen: React.FC = () => {
-  const { coordinates } = useLocalSearchParams(); // Get default coordinates from local search params
+  const { coordinates } = useLocalSearchParams();
+  const navigation = useNavigation(); // Get navigation object
   const [organizations, setOrganizations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedOrganization, setSelectedOrganization] = useState<any>(null);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [isFavorited, setIsFavorited] = useState(false); // State to track favorite toggle
+  const [userLocation, setUserLocation] = useState<{ latitude: number, longitude: number } | null>(null);
+  const [locationPermission, setLocationPermission] = useState<boolean>(false);
+  const { userId } = useAuth()
+  const mapRef = useRef<MapView | null>(null);
+
+  // Request location permission
+  const requestLocationPermission = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status === 'granted') {
+      const location = await Location.getCurrentPositionAsync({});
+      setUserLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+      setLocationPermission(true);
+    } else {
+      setLocationPermission(false);
+    }
+  };
 
   // Fetch organization data
   const fetchOrganizations = async () => {
@@ -35,7 +53,7 @@ const MapScreen: React.FC = () => {
     }
   };
 
-  // Geocode an address into latitude and longitude using Mapbox API
+  // Geocode an address using Mapbox API
   const geocodeAddress = async (address: string) => {
     try {
       const response = await axios.get(
@@ -52,50 +70,36 @@ const MapScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchOrganizations();
+    requestLocationPermission(); // Request permission on load
+    fetchOrganizations(); // Fetch organizations data
   }, []);
 
-  // Toggle favorite function
-  const toggleFavorite = () => {
-    setIsFavorited(!isFavorited); // Toggle the favorite state
+  const centerMapOnUser = () => {
+    if (userLocation && mapRef.current) {
+      mapRef.current.animateToRegion({
+        latitude: userLocation.latitude,
+        longitude: userLocation.longitude,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }, 1000);
+    }
   };
 
-  const handleShare = async () => {
-    try {
-      const result = await RNShare.share({
-        message: 'Check out this organization on ClientClub!',
-        url: 'https://yourwebsite.com', // Optional, URL to be shared
-        title: 'Organization Details', // Optional, title of the shared content
-      });
-      
-      if (result.action === RNShare.sharedAction) {
-        if (result.activityType) {
-          // User shared via specific activity type
-          console.log('Shared via', result.activityType);
-        } else {
-          // User shared but no specific activity chosen
-          console.log('Shared');
-        }
-      } else if (result.action === RNShare.dismissedAction) {
-        // User dismissed the share dialog
-        console.log('Share dismissed');
-      }
-    } catch (error) {
-      Alert.alert('Error', error.message);
-    }
+  const handleOrgPress = (id: string) => {
+    navigation.navigate('organization/[id]', { id, appuserId: userId }); // Navigate to organization page
   };
 
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />;
   }
 
-  // Use coordinates from local search params or fallback to default ones
   const defaultLatitude = coordinates?.[1] ?? 59.3293;
   const defaultLongitude = coordinates?.[0] ?? 18.0686;
 
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         provider={PROVIDER_DEFAULT}
         style={styles.map}
         initialRegion={{
@@ -114,55 +118,25 @@ const MapScreen: React.FC = () => {
                 longitude: org.coordinates.longitude,
               }}
               title={org.name}
-              onPress={() => {
-                setSelectedOrganization(org);
-                setModalVisible(true);
-              }}
-            />
+              onPress={() => handleOrgPress(org.id)} // Handle organization press
+            >
+              <Image
+                source={{
+                  uri: org.iconUrl || 'https://i.imgur.com/PLWelDm.png',
+                }}
+                style={styles.customMarker}
+              />
+            </Marker>
           ) : null
         )}
       </MapView>
 
-      {/* Modal to display organization info with image on top and heart toggle */}
-      <Modal
-        isVisible={isModalVisible}
-        onBackdropPress={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContent}>
-          {selectedOrganization && (
-            <>
-              {/* Image on top */}
-              <Image
-                source={{
-                  uri: selectedOrganization.imageUrl || 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                }}
-                style={styles.modalImage}
-              />
-
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{selectedOrganization.name}</Text>
-                <View style={styles.iconContainer}>
-                    {/* Heart icon to toggle favorite */}
-                    <TouchableOpacity onPress={toggleFavorite} style={styles.iconSpacing}>
-                    <Heart
-                        stroke={isFavorited ? 'red' : 'black'}
-                        fill={isFavorited ? 'red' : 'none'}
-                        size={20}
-                    />
-                    </TouchableOpacity>
-                    {/* Share icon */}
-                    <TouchableOpacity onPress={handleShare} style={styles.iconSpacing}>
-                    <ShareIcon stroke="black" size={20} />
-                    </TouchableOpacity>
-                </View>
-              </View>
-
-              <Text>{selectedOrganization.address}</Text>
-              <Text>{selectedOrganization.description || 'No description available'}</Text>
-            </>
-          )}
-        </View>
-      </Modal>
+      {/* Button to center the map on user location */}
+      {userLocation && locationPermission && (
+        <TouchableOpacity style={styles.centerButton} onPress={centerMapOnUser}>
+          <Locate size={24} color="black" />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -179,34 +153,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  modalContent: {
+  customMarker: {
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
+    borderRadius: 12,
+  },
+  centerButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
     backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-  },
-  modalImage: {
-    width: '100%',
-    height: 200, // Adjust this value as needed
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    marginBottom: 20, // Space between image and content
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  iconContainer: {
-    flexDirection: 'row', // Ensures the icons are in a row
-    alignItems: 'center',
-  },
-  iconSpacing: {
-    marginLeft: 10, // Adds spacing between the icons
+    padding: 10,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 

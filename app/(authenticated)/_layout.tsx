@@ -107,7 +107,7 @@ const Layout = () => {
           // Custom back button
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
-              <ArrowLeft stroke="black" size={22} />
+              <ArrowLeft stroke="#333" size={22} />
             </TouchableOpacity>
           ),
         }}

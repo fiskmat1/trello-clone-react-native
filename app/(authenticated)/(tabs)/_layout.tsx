@@ -5,6 +5,7 @@ import { QrCode, Bell, User, House, Search } from 'lucide-react-native'; // Impo
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Canvas, DiffRect, rect, rrect } from "@shopify/react-native-skia";
 import { View } from 'react-native';
+import tw from 'tailwind-react-native-classnames';
 
 const Layout = () => {
   return (
@@ -53,6 +54,7 @@ const Layout = () => {
             elevation: 0, // Remove shadow on Android
             shadowOpacity: 0, // Remove shadow on iOS
           },
+          tabBarActiveTintColor: 'white'
         }}
         
       />

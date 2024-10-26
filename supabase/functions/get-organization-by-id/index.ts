@@ -1,43 +1,63 @@
-// supabase/functions/get-organization-by-id/index.ts
-
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@1.30.0';
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL');
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-// Create a Supabase client with the service role key
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 serve(async (req: Request) => {
   try {
-    // Parse the organization ID from the URL query params
+    // Parse the organization ID and appuser ID from the URL query params
     const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
+    const organizationId = searchParams.get('id');
+    const appuserId = searchParams.get('appuserId');
 
-    console.log(`Fetching organization with id: ${id}`);
-    console.log(`Supabase URL: ${supabaseUrl}`);
-
-    if (!id) {
-      return new Response(JSON.stringify({ error: 'Missing organization ID' }), {
+    if (!organizationId || !appuserId) {
+      return new Response(JSON.stringify({ error: 'Missing organization ID or appuser ID' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     // Fetch the organization data from the database
-    const { data, error } = await supabase
+    const { data: organizationData, error: organizationError } = await supabase
       .from('Organization')
       .select('*')
-      .eq('id', id)
+      .eq('id', organizationId)
       .single();
 
-    if (error) {
-      throw new Error(error.message);
+    if (organizationError) {
+      throw new Error(organizationError.message);
     }
 
-    // Return the organization data as JSON
-    return new Response(JSON.stringify(data), {
+    // Fetch the loyalty points for the specific user and organization
+    const { data: loyaltyPointsData, error: loyaltyPointsError } = await supabase
+      .from('LoyaltyPoints')
+      .select('points')
+      .eq('appuserId', appuserId)
+      .eq('organizationId', organizationId)
+      .single();
+
+    // Handle case where no loyalty points row exists
+    let loyaltyPoints = null; // Default to 0 if no points exist
+
+    if (loyaltyPointsError && loyaltyPointsError.code !== 'PGRST116') {
+      // Log other potential errors
+      throw new Error(loyaltyPointsError.message);
+    }
+
+    if (loyaltyPointsData) {
+      loyaltyPoints = loyaltyPointsData.points;
+    }
+
+    // Return the organization data along with loyalty points
+    const responseData = {
+      ...organizationData,
+      loyaltyPoints, // Use the default 0 or the fetched points
+    };
+
+    return new Response(JSON.stringify(responseData), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
