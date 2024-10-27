@@ -9,9 +9,9 @@ import { Colors } from '@/constants/Colors';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
-
-import { ThemeProvider } from '@react-navigation/native';
 import { useColorScheme } from '~/lib/useColorScheme';
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import AnimatedIntroSplash from '@/components/AnimatedIntroSplash';
 
 const tokenCache = {
   async getToken(key: string) {
@@ -33,68 +33,71 @@ const tokenCache = {
 const InitialLayout = () => {
   const router = useRouter();
   const segments = useSegments();
-  const { isLoaded, isSignedIn } = useAuth(); // Call unconditionally
-  const [appReady, setAppReady] = useState(false); // Ensure app is ready before navigation
+  const { isLoaded, isSignedIn } = useAuth();
+  const [appReady, setAppReady] = useState(false);
+  const [introComplete, setIntroComplete] = useState(false);
 
   const { colorScheme, setColorScheme } = useColorScheme();
   const [isColorSchemeLoaded, setIsColorSchemeLoaded] = useState(false);
 
+  // Animated fade-out effect
+  const fadeOutStyle = useAnimatedStyle(() => ({
+    opacity: introComplete ? withTiming(0, { duration: 1000 }) : 1,
+  }));
+
   useEffect(() => {
-    // Async function to handle splash screen and color theme
     (async () => {
       try {
-        SplashScreen.preventAutoHideAsync(); // Prevent hiding until app is ready
+        SplashScreen.preventAutoHideAsync();
         const theme = await AsyncStorage.getItem('theme');
-
         if (!theme) {
           AsyncStorage.setItem('theme', colorScheme);
           setIsColorSchemeLoaded(true);
           return;
         }
-
         const colorTheme = theme === 'dark' ? 'dark' : 'light';
         if (colorTheme !== colorScheme) {
           setColorScheme(colorTheme);
         }
-
         setIsColorSchemeLoaded(true);
       } catch (err) {
         console.error('Error loading theme or SplashScreen:', err);
       } finally {
         setAppReady(true);
+        SplashScreen.hideAsync();
+        setTimeout(() => setIntroComplete(true), 4000);
       }
     })();
   }, [colorScheme, setColorScheme]);
 
+  // Navigate when both introComplete and isLoaded are true
   useEffect(() => {
-    if (!isLoaded || !appReady) return;
+    if (!introComplete || !isLoaded) return;
 
     const inAuthGroup = segments[0] === '(authenticated)';
-
     if (isSignedIn && !inAuthGroup) {
       router.replace('/(authenticated)/(tabs)');
     } else if (!isSignedIn) {
       router.replace('/');
     }
-  }, [isSignedIn, isLoaded, appReady]);
+  }, [isSignedIn, isLoaded, introComplete]);
 
-  // Ensure that the app is ready and all dependencies (auth, color scheme, etc.) are loaded
   if (!isColorSchemeLoaded || !isLoaded || !appReady) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color={Colors.primary} />
-      </View>
-    );
+    return null;
   }
-
-  SplashScreen.hideAsync(); // Ensure SplashScreen is hidden when app is ready
 
   return (
     <SupabaseProvider>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="(authenticated)" options={{ headerShown: false }} />
-      </Stack>
+      {!introComplete ? (
+        <Animated.View style={[{ flex: 1 }, fadeOutStyle]}>
+          <AnimatedIntroSplash />
+        </Animated.View>
+      ) : (
+        <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="(authenticated)" options={{ headerShown: false }} />
+        </Stack>
+      )}
     </SupabaseProvider>
   );
 };
@@ -102,7 +105,7 @@ const InitialLayout = () => {
 const RootLayoutNav = () => {
   return (
     <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
-      <StatusBar style="dark"  />
+      <StatusBar style="dark" />
       <ActionSheetProvider>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <InitialLayout />

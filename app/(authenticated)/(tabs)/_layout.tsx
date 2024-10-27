@@ -26,7 +26,7 @@ const Layout = () => {
         name="index"
         options={{
           headerShown: false,
-          title: 'Home',
+          title: 'Hem',
           tabBarIcon: ({ size, color }) => (
             <House size={size} color={color} />
           ),
@@ -35,7 +35,7 @@ const Layout = () => {
       <Tabs.Screen
         name="search"
         options={{
-          title: 'Search',
+          title: 'Sök',
           tabBarIcon: ({ size, color }) => (
             <Search size={size} color={color} /> // Using Lucide's QrCode icon
           ),
@@ -45,7 +45,7 @@ const Layout = () => {
       <Tabs.Screen
         name="scan"
         options={{
-          title: 'Scan',
+          title: 'Skanna',
           tabBarIcon: ({ size, color }) => (
             <QrCode size={size} color={color} />
           ),
@@ -68,7 +68,7 @@ const Layout = () => {
             shadowOpacity: 0, // Remove shadow on iOS
             borderBottomWidth: 0, // Hide the bottom border
           },
-          title: 'Notifications',
+          title: 'Notiser',
           tabBarIcon: ({ size, color }) => (
             <Bell size={size} color={color} /> // Using Lucide's Bell icon for notifications
           ),
@@ -82,7 +82,7 @@ const Layout = () => {
             shadowOpacity: 0, // Remove shadow on iOS
             borderBottomWidth: 0, // Hide the bottom border
           },
-          title: 'Account',
+          title: 'Profil',
           tabBarIcon: ({ size, color }) => (
             <User size={size} color={color} /> // Using Lucide's User icon for the profile
           ),

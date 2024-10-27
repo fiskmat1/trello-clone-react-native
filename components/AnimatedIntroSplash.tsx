@@ -15,29 +15,15 @@ import { ReText } from 'react-native-redash';
 
 const content = [
   {
-    title: 'ClientClub.',
+    title: 'ClientClub',
     bg: 'white',
     fontColor: 'black',
-  },
-  {
-    title: "Let's shop.",
-    bg: Colors.clientclub,
-    fontColor: Colors.sky,
-  },
-  {
-    title: "Rewards.",
-    bg: Colors.brown,
-    fontColor: Colors.sky,
-  },
-  {
-    title: "Let's go.",
-    bg: 'black',
-    fontColor: 'white',
-  },
+  }
+ 
   
 ];
 
-const AnimatedIntro = () => {
+const AnimatedIntroSplash = () => {
   const { width } = useWindowDimensions();
   const ballWidth = 34;
   const half = width / 2 - ballWidth / 2;
@@ -192,7 +178,8 @@ const AnimatedIntro = () => {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    ...StyleSheet.absoluteFillObject
+    ...StyleSheet.absoluteFillObject,
+    
   },
   mask: {
     zIndex: 1,
@@ -219,7 +206,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   content: {
-    marginTop: 300,
+    marginTop: 400,
   },
 });
-export default memo(AnimatedIntro);
+export default memo(AnimatedIntroSplash);

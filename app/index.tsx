@@ -82,7 +82,7 @@ export default function Index() {
 
           <View style={styles.bottomContainer}>
           <Text style={styles.introText}>
-            Get exclusive store deals and rewards – all in one app.
+           
           </Text>
             <TouchableOpacity
               style={[styles.btn, { backgroundColor: 'white' }]}
@@ -90,7 +90,7 @@ export default function Index() {
             >
               <Text style={[styles.btnText, { color: 'black' }]}>Log in</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.btn} onPress={() => showModal(ModalType.SignUp)}>
+            <TouchableOpacity style={[styles.btn, {backgroundColor: '#1B1A1F'}]} onPress={() => showModal(ModalType.SignUp)}>
               <Text style={[styles.btnText, { color: '#fff' }]}>Sign Up</Text>
             </TouchableOpacity>
 
@@ -145,14 +145,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: 'white',
     fontSize: 17,
-    padding: 30,
+    padding: 10,
     textAlign: 'center',
   },
   bottomContainer: {
     width: '100%',
     paddingHorizontal: 40,
     paddingBottom: 40,
-    gap: 10,
+    gap: 15,
     color: 'black',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -164,10 +164,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     borderColor: '#fff',
-    borderWidth: 1,
+    
   },
   btnText: {
     fontSize: 18,
+    fontWeight: 500
   },
   description: {
     fontSize: 12,

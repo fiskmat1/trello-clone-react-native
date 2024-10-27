@@ -65,7 +65,7 @@ const SearchBar = ({ setCity, city }: SearchBarProps) => {
         <View style={styles.inputRow}>
           <MapPin size={24} color="gray" style={styles.icon} />
           <TextInput
-            placeholder="Search"
+            placeholder="Sök"
             placeholderTextColor="gray"
             value={searchText}
             onChangeText={(text) => {
@@ -76,7 +76,7 @@ const SearchBar = ({ setCity, city }: SearchBarProps) => {
           />
           <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
             <Search size={13} color="black" />
-            <Text style={styles.searchButtonText}>Search</Text>
+            <Text style={styles.searchButtonText}>Sök</Text>
           </TouchableOpacity>
         </View>
 
@@ -102,7 +102,7 @@ const SearchBar = ({ setCity, city }: SearchBarProps) => {
 const styles = StyleSheet.create({
   glassContainer: {
     borderRadius: 15,
-    padding: 10,
+    padding: 9,
     overflow: 'hidden',
     marginTop: 10,
   },

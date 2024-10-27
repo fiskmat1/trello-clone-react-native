@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native';
 import { useAuth } from '@clerk/clerk-expo';
 import { useNavigation } from '@react-navigation/native';
 import tw from 'tailwind-react-native-classnames';
-import { Info, User, Store, Glasses, Soup, BookMarked } from 'lucide-react-native';
+import { Info, User, Store, Glasses, Soup, BookMarked, Coins } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
 import { Colors } from '@/constants/Colors';
 
@@ -81,7 +81,7 @@ const Page = () => {
             <Text style={tw`font-bold text-3xl text-black`}>ClientClub</Text>
             <TouchableOpacity onPress={handleAccountPress}>
             <BlurView intensity={20} tint="light" style={styles.userIconBackground}>
-              <User stroke={'black'} />
+              <User stroke={'#5A5A5A'} />
             </BlurView>
             </TouchableOpacity>
           </View>
@@ -145,7 +145,7 @@ const Page = () => {
                 </View>
               ) : (
                 organizations.map((org) => (
-                  <BlurView intensity={50} tint="light" style={styles.cardWrapper} key={org.id}>
+                  <BlurView intensity={40} tint="light" style={styles.cardWrapper} key={org.id}>
                     <TouchableOpacity onPress={() => handleOrgPress(org.id)}>
                       <View style={styles.orgCard}>
                         <Image
@@ -156,8 +156,11 @@ const Page = () => {
                         />
                         <View style={styles.orgDetails}>
                           <Text style={styles.orgName}>{org.name}</Text>
-                          <Text style={styles.orgInfo}>$$ • 120 kr min. • {org.category}</Text>
-                          <Text style={styles.orgDeliveryInfo}>10-25 min • 29 kr</Text>
+                          <View style={styles.orgInfoContainer}>
+                            <Coins size={14} color="orange" style={styles.coinIcon} />
+                            <Text style={styles.orgInfo}>• samla poäng • {org.category}</Text>
+                          </View>
+                          <Text style={styles.orgDeliveryInfo}>Se mer</Text>
                         </View>
                       </View>
                     </TouchableOpacity>
@@ -188,7 +191,10 @@ const Page = () => {
                         />
                         <View style={styles.orgDetails}>
                           <Text style={styles.orgName}>{org.name}</Text>
-                          <Text style={styles.orgInfo}>$$ • 120 kr min. • {org.category}</Text>
+                          <View style={styles.orgInfoContainer}>
+                            <Coins size={14} color="orange" style={styles.coinIcon} />
+                            <Text style={styles.orgInfo}>• samla poäng • {org.category}</Text>
+                          </View>
                           <Text style={styles.orgDeliveryInfo}>10-25 min • 29 kr</Text>
                         </View>
                       </View>
@@ -251,6 +257,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+  },
+  orgInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  coinIcon: {
+    marginRight: 4,
+    marginTop: 2
   },
   orgInfo: {
     fontSize: 14,

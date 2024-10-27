@@ -90,7 +90,7 @@ const MapScreen: React.FC = () => {
   };
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />;
+    return null;
   }
 
   const defaultLatitude = coordinates?.[1] ?? 59.3293;
