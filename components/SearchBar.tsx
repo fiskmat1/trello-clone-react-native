@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, FlatList, TextInput, ActivityIndicator, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import tailwind from 'tailwind-react-native-classnames';
-import { MapPin } from 'lucide-react-native';
-import { Search } from 'lucide-react-native';
+import { MapPin, Search } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from './@types'; // Import the types
+import { BlurView } from 'expo-blur';
 
 const MAPBOX_API_KEY = 'pk.eyJ1IjoiZmlza21hdCIsImEiOiJjbTF3ZmYyYXUwbmgyMmpzamlrNXVtbjdrIn0.717Y9Y6vuzKRdjlfRxaKkw';
 
@@ -20,13 +18,11 @@ const SearchBar = ({ setCity, city }: SearchBarProps) => {
   const [results, setResults] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState<[number, number] | null>(null);
 
-  // Use StackNavigationProp with our defined RootStackParamList
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'MapScreen'>>(); 
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList, 'MapScreen'>>();
 
-  // Function to fetch results from Mapbox API
   const fetchMapboxPlaces = async (text: string) => {
     if (text.length < 2) {
-      setResults([]); // Clear results if input is too short
+      setResults([]);
       return;
     }
 
@@ -48,53 +44,44 @@ const SearchBar = ({ setCity, city }: SearchBarProps) => {
     setCity(place.place_name);
     setSearchText(place.place_name);
     setResults([]);
-    setSelectedLocation(place.center); // Store the coordinates of the selected place
+    setSelectedLocation(place.center);
   };
 
   const handleSearch = () => {
     if (selectedLocation) {
-      // Navigate to the map screen with the selected coordinates
       navigation.navigate('mapscreen/index', { coordinates: selectedLocation });
-      setSearchText('')
+      setSearchText('');
     }
   };
 
   const closeAutocomplete = () => {
-    setResults([]); // Close results list when clicking outside
-    Keyboard.dismiss(); // Close the keyboard
+    setResults([]);
+    Keyboard.dismiss();
   };
 
   return (
     <TouchableWithoutFeedback onPress={closeAutocomplete}>
-      <View style={styles.container}>
-        {/* Input and Button Wrapper */}
-        <View style={tailwind`flex-row items-center`}>
-          {/* Left Icon and Text Input */}
-          <View style={tailwind`flex-1 flex-row items-center`}>
-            <MapPin size={24} color="#CCCCCC" style={tailwind`ml-3`} />
-            <TextInput
-              placeholder={"Search"}
-              value={searchText}
-              onChangeText={(text) => {
-                setSearchText(text);
-                fetchMapboxPlaces(text);
-              }}
-              style={styles.textInput}
-              onFocus={() => setResults([])} // Show results only when typing
-            />
-          </View>
-
-          {/* Right Button */}
+      <BlurView intensity={40} tint="light" style={styles.glassContainer}>
+        <View style={styles.inputRow}>
+          <MapPin size={24} color="gray" style={styles.icon} />
+          <TextInput
+            placeholder="Search"
+            placeholderTextColor="gray"
+            value={searchText}
+            onChangeText={(text) => {
+              setSearchText(text);
+              fetchMapboxPlaces(text);
+            }}
+            style={styles.textInput}
+          />
           <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
             <Search size={13} color="black" />
             <Text style={styles.searchButtonText}>Search</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Loading Indicator */}
-        {loading && <ActivityIndicator size="small" color="#000" style={tailwind`mt-2`} />}
+        {loading && <ActivityIndicator size="small" color="#000000" style={styles.loading} />}
 
-        {/* Results List */}
         {results.length > 0 && (
           <FlatList
             data={results}
@@ -107,32 +94,40 @@ const SearchBar = ({ setCity, city }: SearchBarProps) => {
             style={styles.resultsList}
           />
         )}
-      </View>
+      </BlurView>
     </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  glassContainer: {
+    borderRadius: 15,
+    padding: 10,
+    overflow: 'hidden',
     marginTop: 10,
-    borderBottomWidth: 0,
-    borderColor: '#ddd',
-    paddingBottom: 10,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  icon: {
+    marginLeft: 10,
   },
   textInput: {
-    fontSize: 15,
-    fontWeight: '700',
-    backgroundColor: '#F3F4F6',
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 15,
-    borderRadius: 10,
-    flex: 1,
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#000000', // Black text color
     marginLeft: 10,
   },
   searchButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)', // Slightly transparent for button
     paddingVertical: 8,
     paddingHorizontal: 15,
     borderRadius: 20,
@@ -142,10 +137,14 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     fontSize: 14,
     fontWeight: '500',
+    color: 'gray', // Black text color
+  },
+  loading: {
+    marginTop: 10,
   },
   resultsList: {
     marginTop: 10,
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)', // Slightly transparent for glass effect
     borderRadius: 10,
     paddingHorizontal: 10,
     maxHeight: 200,
@@ -153,7 +152,8 @@ const styles = StyleSheet.create({
   resultItem: {
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: 'rgba(255, 255, 255, 0.3)',
+    color: '#000000', // Black text color
   },
 });
 

@@ -17,9 +17,12 @@ import Animated, { useAnimatedStyle, withSpring, LinearTransition, FadeIn, FadeO
 import { BlurView } from 'expo-blur';
 import tw from 'tailwind-react-native-classnames';
 import LottieView from 'lottie-react-native'
-
+import QRCode from 'react-native-qrcode-svg';
+import NFCReader from '@/components/NFCReader';
 
 type OrganizationRouteProp = RouteProp<{ params: { id: string; appuserId: string; getToken: string } }, 'params'>;
+
+
 
 const OrganizationPage = () => {
   const [organization, setOrganization] = useState<any>(null);
@@ -32,11 +35,38 @@ const OrganizationPage = () => {
   const [confirmModalVisible, setConfirmModalVisible] = useState(false); // Modal for redeem confirmation
   const [verificationModalVisible, setVerificationModalVisible] = useState(false); // Modal for verification
   const [selectedReward, setSelectedReward] = useState<any>(null); // Store the reward being redeemed
-
+  const [qrCodeValue, setQrCodeValue] = useState(generateQrCodeContent(selectedReward));
+  const [showQRCode, setShowQRCode] = useState(false);
 
   const route = useRoute<OrganizationRouteProp>();
   const { id, appuserId } = route.params;
   const { session } = useSession();
+
+  function generateQrCodeContent(selectedReward) {
+    return `${selectedReward?.title || 'Reward'}_${Date.now()}`;
+  }
+
+  useEffect(() => {
+    // Only set up the interval if the modal is visible
+    if (verificationModalVisible) {
+      const interval = setInterval(() => {
+        setQrCodeValue(generateQrCodeContent(selectedReward));
+      }, 3000);
+  
+      // Clear the interval when the component unmounts or modal is closed
+      return () => clearInterval(interval);
+    }
+  }, [verificationModalVisible, selectedReward]);
+
+  useEffect(() => {
+    if (verificationModalVisible) {
+      setShowQRCode(false);
+      const timer = setTimeout(() => {
+        setShowQRCode(true);
+      }, 2000); // Show QR code after 2 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [verificationModalVisible]);
 
   useEffect(() => {
     const fetchOrganization = async () => {
@@ -156,6 +186,10 @@ const OrganizationPage = () => {
     return <Text>No organization found.</Text>;
   }
 
+  
+
+  
+
   return (
     <View style={styles.container}>
       {/* Display organization image at the top */}
@@ -175,7 +209,7 @@ const OrganizationPage = () => {
       <Text>{organization.address}</Text>
       <Text style={tw`mt-3`}>{organization.description}</Text>
 
-      {loyaltyRewards.length > 0 && (
+      {isJoined && loyaltyRewards.length > 0 && (
         <View style={styles.rewardsContainer}>
           <View style={tw`flex-row items-center mb-5`}>
             <Text style={tw`font-bold text-xl`}>Rewards</Text>
@@ -251,16 +285,16 @@ const OrganizationPage = () => {
           <Modal visible={confirmModalVisible} animationType="fade" transparent={true}>
             <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Confirm Redemption</Text>
+                <Text style={styles.modalTitle}>Lös in</Text>
                 <Text style={styles.modalDescription}>
-                  Do you want to redeem {selectedReward.title} for {selectedReward.pointsRequired} points?
+                  Vill du lösa in {selectedReward.title} för {selectedReward.pointsRequired} poäng?
                 </Text>
                 <View style={styles.modalButtons}>
                   <TouchableOpacity style={styles.cancelButton} onPress={() => setConfirmModalVisible(false)}>
-                    <Text style={styles.closeButtonText}>Cancel</Text>
+                    <Text style={styles.closeButtonText}>Avbryt</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.redeemButton} onPress={handleRedeemPoints}>
-                    <Text style={styles.closeButtonText}>Redeem</Text>
+                    <Text style={styles.closeButtonText}>Lös in</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -275,38 +309,28 @@ const OrganizationPage = () => {
               exiting={FadeOut.duration(600)}
               style={styles.verificationContent}
             >
-              {/* Background shimmer effect */}
-              
               <TouchableOpacity style={styles.closeButton} onPress={() => setVerificationModalVisible(false)}>
                 <X stroke={'gray'} />
               </TouchableOpacity>
-              {/* Reward icon and verification message */}
-              <View >
+
+              <View style={tw`mt-4 -mb-4`}>
+                
               
-              <LottieView
+                  <Animated.View entering={FadeIn.duration(600)} style={tw`p-16`}>
+                    <QRCode value={qrCodeValue} size={150} />
+                  </Animated.View>
              
-              source={require('@/assets/verified.json')}
-              autoPlay
-              style={tw`w-32 h-32`}
-              />
-              
               </View>
-
-              <Text style={styles.verificationText}>Reward Redeemed!</Text>
-              <View style={tw`flex-row`}>
-                <Gift stroke={'gray'} style={tw`mr-1 -mt-0.5`} />
-              <Text style={styles.rewardTitleText}>{selectedReward.title}</Text>
-              </View>
-
-              {/* Decorative animation (e.g., confetti) */}
-              
-
-              {/* Close button */}
-              
+             
+                <Animated.View entering={FadeIn.duration(600)} style={tw`flex-row`}>
+                  <Gift stroke={'gray'} style={tw`mr-1 -mt-0.5`} />
+                  <Text style={styles.rewardTitleText}>{selectedReward.title}</Text>
+                </Animated.View>
+             
             </Animated.View>
           </View>
         </Modal>
-        )}
+      )}
 
     </View>
   );
@@ -481,17 +505,22 @@ const styles = StyleSheet.create({
     textAlign: 'left',  // Left-align the description text
   },
   verificationContent: {
-    width: '85%',
+    width: '90%',
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 20,
     padding: 20,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 5 },
     shadowRadius: 10,
     elevation: 10,
-    position: 'relative',
+  },
+  qrCodeContainer: {
+    marginVertical: 20,
+    backgroundColor: '#f9f9f9',
+    padding: 15,
+    borderRadius: 10,
   },
   shimmerBackground: {
     ...StyleSheet.absoluteFillObject,
@@ -531,7 +560,7 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     padding: 10,
-    backgroundColor: '#ccc',
+    backgroundColor: 'gray',
     borderRadius: 5,
     width: '45%',
     alignItems: 'center',
@@ -552,6 +581,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 16,
     color: 'white',
+    fontWeight:'bold'
   },
 });
 

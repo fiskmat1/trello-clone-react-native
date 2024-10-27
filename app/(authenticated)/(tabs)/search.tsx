@@ -33,12 +33,12 @@ type Organization = {
 };
 
 const sections = [
-  { title: 'Near you', label: 'Curated top picks from this week' },
-  { title: 'Food', label: 'Transform your ideas into amazing images' },
-  { title: 'Clothing', label: 'Enhance your writing with tools for creation, editing, and style refinement' },
-  { title: 'Productivity', label: 'Increase your efficiency' },
-  { title: 'Flowers', label: 'Find, evaluate, interpret, and visualize information' },
-  { title: 'Books', label: 'Write code, debug, test, and learn' },
+  { title: 'Nära dig', label: 'Handplockade favoriter från veckan' },
+{ title: 'Mat', label: 'Upptäck trendiga restauranger och matställen' },
+{ title: 'Butiker', label: 'Utforska lokala butiker och butiker' },
+{ title: 'Hälsa', label: 'Bästa gym, spa och wellnesscenter' },
+{ title: 'Gåvor', label: 'Blommor, presenter och nödvändigheter för alla tillfällen' },
+{ title: 'Nöje', label: 'Unika aktiviteter och upplevelser i närheten' },
 ];
 
 const Page = () => {
@@ -110,7 +110,7 @@ const Page = () => {
 
   // Filter organizations based on user location
   useEffect(() => {
-    if (userLocation && selected.title === 'Near you') {
+    if (userLocation && selected.title === 'Nära dig') {
       const fetchDistances = async () => {
         setLoadingGeocoding(true); // Start geocoding
         const nearbyOrganizations: Organization[] = [];
@@ -160,6 +160,17 @@ const Page = () => {
       setFilteredOrganizations(organizations);
     }
   }, [userLocation, selected, organizations]);
+
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredOrganizations(organizations); // Reset when search is cleared
+    } else {
+      const results = organizations.filter((org) =>
+        org.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredOrganizations(results);
+    }
+  }, [searchQuery, organizations]);
 
   const { width: deviceWidth } = useWindowDimensions();
   const searchBarStyle = useAnimatedStyle(() => {
@@ -302,7 +313,7 @@ const styles = StyleSheet.create({
   searchBar: {
     height: 37,
     marginRight: 10,
-    backgroundColor: '#EEE9F0',
+    backgroundColor: '#EDEDEF',
     borderRadius: 9,
     paddingHorizontal: 10,
     overflow: 'hidden',
@@ -327,7 +338,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionBtn: {
-    backgroundColor: '#EEE9F0',
+    backgroundColor: '#EDEDEF',
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -348,7 +359,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 8,
-    backgroundColor: Colors.input,
+   
     padding: 16,
     marginBottom: 8,
     flexDirection: 'row',
@@ -375,3 +386,4 @@ const styles = StyleSheet.create({
 });
 
 export default Page;
+

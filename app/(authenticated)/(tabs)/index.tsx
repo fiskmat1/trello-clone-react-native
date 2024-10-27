@@ -7,27 +7,28 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  ImageBackground,
 } from 'react-native';
-import SearchBar from '@/components/SearchBar'; // A search bar for entering a city
+import SearchBar from '@/components/SearchBar';
 import { SafeAreaView } from 'react-native';
 import { useAuth } from '@clerk/clerk-expo';
-import { useNavigation } from '@react-navigation/native'; // Assuming you're using Clerk for authentication
+import { useNavigation } from '@react-navigation/native';
 import tw from 'tailwind-react-native-classnames';
 import { Info, User, Store, Glasses, Soup, BookMarked } from 'lucide-react-native';
+import { BlurView } from 'expo-blur';
 import { Colors } from '@/constants/Colors';
+
+const backgroundImageUrl = "https://i.imgur.com/j5YfcXX.png";
 
 const Page = () => {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { isSignedIn, userId} = useAuth();
+  const { isSignedIn, userId } = useAuth();
   const navigation = useNavigation();
 
-
-  // Fetch Organizations from Supabase Edge Function
   const fetchOrganizations = async () => {
     try {
       setLoading(true);
-
       const response = await fetch(
         'https://kakfeitxqdcmedofleip.supabase.co/functions/v1/fetch-organizations',
         {
@@ -37,13 +38,7 @@ const Page = () => {
           },
         }
       );
-
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch organizations');
-      }
-
       setOrganizations(data);
     } catch (error) {
       console.error('Could not fetch organization data');
@@ -59,171 +54,165 @@ const Page = () => {
   }, [isSignedIn]);
 
   const handleCardPress = () => {
-    navigation.navigate('search'); // Navigate to the "Search" tab
+    navigation.navigate('search');
   };
 
   const handleOrgPress = (id) => {
     if (userId) {
-      navigation.navigate('organization/[id]', { id, appuserId: userId }); // Pass both organization id and appuserId
+      navigation.navigate('organization/[id]', { id, appuserId: userId });
     } else {
       console.error('User is not signed in');
     }
   };
 
   const handleAccountPress = () => {
-    navigation.navigate('account'); // Navigate to the "Search" tab
+    navigation.navigate('account');
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }} edges={['top']}>
-      
+    <ImageBackground
+      source={{ uri: backgroundImageUrl }}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
         <View style={styles.container}>
           <View style={styles.headerContainer}>
-            <Text style={tw`font-bold text-3xl`}>ClientClub</Text>
-            <View>
-              <TouchableOpacity onPress={handleAccountPress}>
-                <User stroke={'black'} />
-              </TouchableOpacity>
-            </View>
+            <Text style={tw`font-bold text-3xl text-black`}>ClientClub</Text>
+            <TouchableOpacity onPress={handleAccountPress}>
+            <BlurView intensity={20} tint="light" style={styles.userIconBackground}>
+              <User stroke={'black'} />
+            </BlurView>
+            </TouchableOpacity>
           </View>
 
-          {/* Search Bar */}
           <SearchBar city={'Organization'} setCity={() => {}} />
           <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchOrganizations} />} // RefreshControl applied to the entire screen
-      >
-          {/* Categories Layout */}
-          <View style={styles.categoriesContainer}>
-            <View style={[styles.categoryCard, styles.cardOne]}>
-              <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
-                <Text style={styles.categoryTitle}>Restauranger</Text>
-                <Text style={styles.categoryDesc}>Favoritmaten till dörren</Text>
-                <View style={styles.iconContainer}>
-                  <Soup stroke={'white'} size={20} />
-                </View>
-              </TouchableOpacity>
+            showsVerticalScrollIndicator={false}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchOrganizations} />}
+          >
+            <View style={styles.categoriesContainer}>
+              <BlurView intensity={50} tint="light" style={[styles.categoryCard, styles.cardOne]}>
+                <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
+                  <Text style={styles.categoryTitle}>Restauranger</Text>
+                  <Text style={styles.categoryDesc}>Favoritmaten till dörren</Text>
+                  <View style={styles.iconContainer}>
+                    <Soup stroke={'#5A5A5A'} size={20} />
+                  </View>
+                </TouchableOpacity>
+              </BlurView>
+
+              <BlurView intensity={50} tint="light" style={[styles.categoryCard, styles.cardTwo]}>
+                <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
+                  <Text style={styles.categoryTitle}>Utforska</Text>
+                  <Text style={styles.categoryDesc}>Utforska butiker</Text>
+                  <View style={styles.iconContainer}>
+                    <Glasses stroke={'#5A5A5A'} size={20} />
+                  </View>
+                </TouchableOpacity>
+              </BlurView>
+
+              <BlurView intensity={50} tint="light" style={[styles.categoryCard, styles.cardThree]}>
+                <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
+                  <Text style={styles.categoryTitle}>Butiker</Text>
+                  <Text style={styles.categoryDesc}>ICA, Hemmakväll</Text>
+                  <View style={styles.iconContainer}>
+                    <Store stroke={'#5A5A5A'} size={20} />
+                  </View>
+                </TouchableOpacity>
+              </BlurView>
+
+              <BlurView intensity={50} tint="light" style={[styles.categoryCard, styles.cardFour]}>
+                <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
+                  <Text style={styles.categoryTitle}>Sparade</Text>
+                  <Text style={styles.categoryDesc}>Sparade butiker</Text>
+                  <View style={styles.iconContainer}>
+                    <BookMarked stroke={'#5A5A5A'} size={20} />
+                  </View>
+                </TouchableOpacity>
+              </BlurView>
             </View>
 
-            <View style={[styles.categoryCard, styles.cardTwo]}>
-              <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
-                <Text style={styles.categoryTitle}>Utforska</Text>
-                <Text style={styles.categoryDesc}>Utforska butiker</Text>
-                <View style={styles.iconContainer}>
-                  <Glasses stroke={'white'} size={20} />
-                </View>
-              </TouchableOpacity>
+            <View style={tw`flex-row items-center mt-5`}>
+              <Text style={tw`font-bold text-xl text-black`}>Rekommendationer</Text>
+              <Info stroke={'black'} size={13} style={tw`ml-2 mt-0.5`} />
             </View>
 
-            <View style={[styles.categoryCard, styles.cardThree]}>
-              <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
-                <Text style={styles.categoryTitle}>Butiker</Text>
-                <Text style={styles.categoryDesc}>ICA, Hemmakväll</Text>
-                <View style={styles.iconContainer}>
-                  <Store stroke={'white'} size={20} />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`flex-1 mt-4`}>
+              {loading ? (
+                <View style={styles.loadingContainer}>
+                  <Text style={styles.title}>Loading...</Text>
                 </View>
-              </TouchableOpacity>
-            </View>
-
-            <View style={[styles.categoryCard, styles.cardFour]}>
-              <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
-                <Text style={styles.categoryTitle}>Sparade</Text>
-                <Text style={styles.categoryDesc}>Sparade butiker</Text>
-                <View style={styles.iconContainer}>
-                  <BookMarked stroke={'white'} size={20} />
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Scrollable Organizations */}
-          <View style={tw`flex-row items-center mt-5`}>
-            <Text style={tw`font-bold text-xl`}>Rekommendationer</Text>
-            <Info stroke={'black'} size={13} style={tw`ml-2 mt-0.5`} />
-          </View>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`flex-1 mt-4`}>
-            {loading ? (
-              <View style={styles.loadingContainer}>
-                <Text style={styles.title}>Loading...</Text>
-              </View>
-            ) : (
-              organizations.map((org) => (
-                <View style={styles.cardWrapper} key={org.id}>
-                  <TouchableOpacity onPress={() => handleOrgPress(org.id)}>
-                    <View style={styles.orgCard}>
-                      <Image
-                        source={{
-                          uri: 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                        }} // Assuming the organization has an image URL field
-                        style={styles.orgImage}
-                      />
-                      <View style={styles.orgDetails}>
-                        <Text style={styles.orgName}>{org.name}</Text>
-                        <Text style={styles.orgInfo}>
-                          $$ • 120 kr min. • {org.category}
-                        </Text>
-                        <Text style={styles.orgDeliveryInfo}>10-25 min • 29 kr</Text>
+              ) : (
+                organizations.map((org) => (
+                  <BlurView intensity={50} tint="light" style={styles.cardWrapper} key={org.id}>
+                    <TouchableOpacity onPress={() => handleOrgPress(org.id)}>
+                      <View style={styles.orgCard}>
+                        <Image
+                          source={{
+                            uri: 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                          }}
+                          style={styles.orgImage}
+                        />
+                        <View style={styles.orgDetails}>
+                          <Text style={styles.orgName}>{org.name}</Text>
+                          <Text style={styles.orgInfo}>$$ • 120 kr min. • {org.category}</Text>
+                          <Text style={styles.orgDeliveryInfo}>10-25 min • 29 kr</Text>
+                        </View>
                       </View>
-                    </View>
-                  </TouchableOpacity>
+                    </TouchableOpacity>
+                  </BlurView>
+                ))
+              )}
+            </ScrollView>
+            <View style={tw`flex-row items-center mt-5`}>
+              <Text style={tw`font-bold text-xl text-black`}>Nytt & Intressant</Text>
+              <Info stroke={'black'} size={13} style={tw`ml-2 mt-0.5`} />
+            </View>
+
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`flex-1 mt-4`}>
+              {loading ? (
+                <View style={styles.loadingContainer}>
+                  <Text style={styles.title}>Loading...</Text>
                 </View>
-              ))
-            )}
-          </ScrollView>
-
-          <View style={tw`flex-row items-center mt-12`}>
-            <Text style={tw`font-bold text-xl`}>Nytt & Intressant</Text>
-            <Info stroke={'black'} size={13} style={tw`ml-2 mt-0.5`} />
-          </View>
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={tw`flex-1 mt-4`}>
-            {loading ? (
-              <View style={styles.loadingContainer}>
-                <Text style={styles.title}>Loading...</Text>
-              </View>
-            ) : (
-              organizations.map((org) => (
-                <View style={styles.cardWrapper} key={org.id}>
-                  <TouchableOpacity onPress={() => handleOrgPress(org.id)}>
-                    <View style={styles.orgCard}>
-                      <Image
-                        source={{
-                          uri: 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-                        }} // Assuming the organization has an image URL field
-                        style={styles.orgImage}
-                      />
-                      <View style={styles.orgDetails}>
-                        <Text style={styles.orgName}>{org.name}</Text>
-                        <Text style={styles.orgInfo}>
-                          $$ • 120 kr min. • {org.category}
-                        </Text>
-                        <Text style={styles.orgDeliveryInfo}>10-25 min • 29 kr</Text>
+              ) : (
+                organizations.map((org) => (
+                  <BlurView intensity={50} tint="light" style={styles.cardWrapper} key={org.id}>
+                    <TouchableOpacity onPress={() => handleOrgPress(org.id)}>
+                      <View style={styles.orgCard}>
+                        <Image
+                          source={{
+                            uri: 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                          }}
+                          style={styles.orgImage}
+                        />
+                        <View style={styles.orgDetails}>
+                          <Text style={styles.orgName}>{org.name}</Text>
+                          <Text style={styles.orgInfo}>$$ • 120 kr min. • {org.category}</Text>
+                          <Text style={styles.orgDeliveryInfo}>10-25 min • 29 kr</Text>
+                        </View>
                       </View>
-                    </View>
-                  </TouchableOpacity>
-                </View>
-              ))
-            )}
-          </ScrollView>
+                    </TouchableOpacity>
+                  </BlurView>
+                ))
+              )}
+            </ScrollView>
           </ScrollView>
         </View>
-      
-    </SafeAreaView>
+      </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
     padding: 20,
   },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'transparent',
   },
   categoriesContainer: {
     flexDirection: 'row',
@@ -231,18 +220,27 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 20,
   },
+  userIconBackground: {
+    padding: 9,
+    borderRadius: 20, // Ensures a circular background for the icon
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   cardWrapper: {
-    marginRight: 12, // Adjust margin between cards
+    marginRight: 12,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
   orgCard: {
-    backgroundColor: '#fff',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)', // Darker background for readability
     borderRadius: 12,
     width: 250,
-    height: 180, // Adjust card height
+    height: 180,
   },
   orgImage: {
     width: '100%',
-    height: 100, // Adjust image height
+    height: 100,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
   },
@@ -275,43 +273,44 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     marginTop: 10,
     justifyContent: 'flex-start',
+    overflow: 'hidden',
   },
   cardOne: {
-    backgroundColor: '#FF0066',
-    height: 213, // Larger card
+    backgroundColor: 'rgba(0, 0, 0, 0.005)',
+    height: 213,
   },
   cardTwo: {
-    backgroundColor: '#004D40',
-    height: 123, // Smaller card
+    backgroundColor: 'rgba(0, 0, 0, 0.005)',
+    height: 123,
     position: 'absolute',
     right: 0,
-    top: 0, // Positioned at the top right, allowing it to overlap
+    top: 0,
   },
   cardThree: {
-    backgroundColor: Colors.greyLight,
+    backgroundColor: 'rgba(0, 0, 0, 0.005)',
     height: 160,
-    marginTop: 140, // Offset downwards to simulate overlapping the row
+    marginTop: 140,
   },
   cardFour: {
-    backgroundColor: '#DF970B',
-    height: 70, // Shorter card
+    backgroundColor: 'rgba(0, 0, 0, 0.005)',
+    height: 70,
     position: 'absolute',
     left: 0,
-    bottom: 0, // Positioned lower-left to overlap
+    bottom: 0,
   },
   categoryTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#5A5A5A',
     marginBottom: 5,
   },
   categoryDesc: {
     fontSize: 12,
-    color: '#fff',
+    color: 'gray',
   },
   iconContainer: {
     position: 'absolute',
-    right: 1, // Centers the icon vertically
+    right: 1,
     bottom: 1,
   },
 });
