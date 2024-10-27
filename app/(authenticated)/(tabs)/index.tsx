@@ -148,9 +148,9 @@ const Page = () => {
                   <BlurView intensity={40} tint="light" style={styles.cardWrapper} key={org.id}>
                     <TouchableOpacity onPress={() => handleOrgPress(org.id)}>
                       <View style={styles.orgCard}>
-                        <Image
+                      <Image
                           source={{
-                            uri: 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                            uri: org.image || 'https://default-image-url.com/fallback.png', // Fallback image if org.image is undefined
                           }}
                           style={styles.orgImage}
                         />
@@ -185,7 +185,7 @@ const Page = () => {
                       <View style={styles.orgCard}>
                         <Image
                           source={{
-                            uri: 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                            uri: org.image || 'https://i.imgur.com/5Jj2TF7.gif', // Fallback image if org.image is undefined
                           }}
                           style={styles.orgImage}
                         />

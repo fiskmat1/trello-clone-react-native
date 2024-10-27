@@ -194,7 +194,7 @@ const OrganizationPage = () => {
     <View style={styles.container}>
       {/* Display organization image at the top */}
       
-        <Image source={{ uri: organization.imageUrl || 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', }} style={styles.organizationImage} />
+        <Image source={{ uri: organization.image || 'https://i.imgur.com/5Jj2TF7.gif', }} style={styles.organizationImage} />
      
 
       <View style={styles.header}>

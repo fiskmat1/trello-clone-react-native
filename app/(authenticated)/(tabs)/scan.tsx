@@ -5,17 +5,33 @@ import { Stack } from "expo-router";
 import { useCameraPermissions } from "expo-camera";
 import { Overlay } from "@/components/Scan/Overlay";
 import * as Location from "expo-location";
+import * as SecureStore from 'expo-secure-store';
 import { useSession } from "@clerk/clerk-expo";
 import { useAuth } from "@clerk/clerk-expo";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const SECONDS_IN_A_DAY = 86400;
 
 export default function Home() {
-  const [permission, requestPermission] = useCameraPermissions();
-  const [isProcessing, setIsProcessing] = useState(false); // Processing state for the indicator
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [locationPermission, setLocationPermission] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const qrLock = useRef(false);
   const appState = useRef(AppState.currentState);
   const { userId } = useAuth();
   const { session } = useSession();
-  const isPermissionGranted = Boolean(permission?.granted);
+
+  // Function to request both camera and location permissions
+  const requestPermissions = async () => {
+    const cameraPermissionStatus = await requestCameraPermission();
+    const locationPermissionStatus = await Location.requestForegroundPermissionsAsync();
+
+    if (cameraPermissionStatus.granted && locationPermissionStatus.status === "granted") {
+      setLocationPermission(true);
+    } else {
+      Alert.alert("Behörigheter krävs", "Vi behöver både kamera- och platsbehörighet för att skanna och verifiera din position.");
+    }
+  };
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -33,19 +49,25 @@ export default function Home() {
   const handleBarCodeScanned = async ({ data }) => {
     if (data && !qrLock.current) {
       qrLock.current = true;
-      setIsProcessing(true); // Show the processing indicator
+      setIsProcessing(true);
 
-      // Set a timer to reset the QR lock after 5 seconds
       setTimeout(() => {
         qrLock.current = false;
-      }, 5000);
+      }, 9000);
 
       try {
-        // Get the JWT token from the session
         const token = await session?.getToken({ template: 'supabase' });
-
-        // Extract organizationId from the last part of the URL
         const organizationId = data.split("/").pop();
+
+        // Check if 24 hours have passed since the last scan for this organization
+        const lastScanTime = await AsyncStorage.getItem(`lastScan_${organizationId}`);
+        const currentTime = Math.floor(Date.now() / 1000);
+
+        if (lastScanTime && currentTime - parseInt(lastScanTime) < SECONDS_IN_A_DAY) {
+          Alert.alert("Fel", "Du kan bara skanna i denna butik en gång per 24h.");
+          setIsProcessing(false);
+          return;
+        }
 
         // Fetch geofence data for the organization with JWT authorization
         const geofenceResponse = await fetch(`https://kakfeitxqdcmedofleip.supabase.co/functions/v1/fetch-geofence?organizationId=${organizationId}`, {
@@ -61,13 +83,7 @@ export default function Home() {
           throw new Error(geofenceData.error || "Failed to fetch geofence data");
         }
 
-        // Request the user's location
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert("Permission to access location was denied.");
-          return;
-        }
-
+        // Get user's current location
         const userLocation = await Location.getCurrentPositionAsync({});
         const distance = getDistance(
           userLocation.coords.latitude,
@@ -91,63 +107,54 @@ export default function Home() {
           const pointsResult = await awardPointsResponse.json();
 
           if (pointsResult.success) {
-            Alert.alert("Success", "Points have been added to your account.");
+            Alert.alert("Lyckat", "Poäng har lagts till på ditt konto.");
+            await AsyncStorage.setItem(`lastScan_${organizationId}`, currentTime.toString());
           } else {
-            Alert.alert("Error", "Failed to add points.");
+            Alert.alert("Fel", "Det gick inte att lägga till poäng.");
           }
         } else {
-          Alert.alert("Out of Range", "You are not within the required range.");
+          Alert.alert("Utanför räckvidd", "Du är inte inom det angivna området.");
         }
       } catch (error) {
-        Alert.alert("Error", error.message || "An error occurred while processing the QR code.");
+        Alert.alert("Fel", error.message || "Ett fel inträffade vid behandling av QR-koden.");
         console.error(error);
       } finally {
-        setIsProcessing(false); // Hide the processing indicator
+        setIsProcessing(false);
       }
     }
   };
 
-  if (!isPermissionGranted) {
+  // If permissions are not granted, display a button to request them
+  if (!cameraPermission?.granted || !locationPermission) {
     return (
       <View style={styles.container}>
-        <TouchableOpacity onPress={requestPermission}>
-          <Text style={styles.permissionButtonText}>Request Permissions</Text>
+        <TouchableOpacity onPress={requestPermissions}>
+          <Text style={styles.permissionButtonText}>Begär Behörigheter</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  if (isPermissionGranted) {
-    return (
-      <View style={styles.fullScreen}>
-        <Stack.Screen options={{ title: "Scan", headerShown: false }} />
-        {Platform.OS === "android" && <StatusBar hidden={true} />}
-        {Platform.OS === "ios" && <StatusBar hidden={true} translucent />}
-
-        <CameraView
-          style={StyleSheet.absoluteFillObject}
-          facing="back"
-          onBarcodeScanned={handleBarCodeScanned}
-        />
-        
-        {isProcessing && (
-          <View style={styles.processingOverlay}>
-            <ActivityIndicator size="large" color="#FFFFFF" />
-            <Text style={styles.processingText}>Processing...</Text>
-          </View>
-        )}
-
-        <Overlay />
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>QR Code Scanner</Text>
-      <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
-        <Text style={styles.buttonText}>Grant Camera Permission</Text>
-      </TouchableOpacity>
+    <View style={styles.fullScreen}>
+      <Stack.Screen options={{ title: "Scan", headerShown: false }} />
+      {Platform.OS === "android" && <StatusBar hidden={true} />}
+      {Platform.OS === "ios" && <StatusBar hidden={true} translucent />}
+
+      <CameraView
+        style={StyleSheet.absoluteFillObject}
+        facing="back"
+        onBarcodeScanned={handleBarCodeScanned}
+      />
+
+      {isProcessing && (
+        <View style={styles.processingOverlay}>
+          <ActivityIndicator size="large" color="#FFFFFF" />
+          <Text style={styles.processingText}>Behandlar...</Text>
+        </View>
+      )}
+
+      <Overlay />
     </View>
   );
 }
@@ -163,26 +170,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
   },
-  title: {
-    color: "black",
-    fontSize: 24,
-    marginBottom: 20,
-  },
-  permissionButton: {
-    backgroundColor: "#0E7AFE",
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-  },
   permissionButtonText: {
     color: "#0E7AFE",
     fontSize: 18,
     textAlign: "center",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
   },
   processingOverlay: {
     ...StyleSheet.absoluteFillObject,
