@@ -19,31 +19,31 @@ import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
 import * as Location from 'expo-location';
-import { Colors } from '@/constants/Colors'; // Assuming you have this in your project
+import { Colors } from '@/constants/Colors';
 
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
-// Define the organization type structure
 type Organization = {
   id: string;
   name: string;
   description: string;
   address: string;
-  imageUrl?: string;
+  image?: string;
+  category: string;
 };
 
 const sections = [
   { title: 'Nära dig', label: 'Handplockade favoriter från veckan' },
-{ title: 'Mat', label: 'Upptäck trendiga restauranger och matställen' },
-{ title: 'Butiker', label: 'Utforska lokala butiker och butiker' },
-{ title: 'Hälsa', label: 'Bästa gym, spa och wellnesscenter' },
-{ title: 'Gåvor', label: 'Blommor, presenter och nödvändigheter för alla tillfällen' },
-{ title: 'Nöje', label: 'Unika aktiviteter och upplevelser i närheten' },
+  { title: 'Mat', label: 'Upptäck trendiga restauranger och matställen' },
+  { title: 'Butiker', label: 'Utforska lokala butiker och butiker' },
+  { title: 'Hälsa', label: 'Bästa gym, spa och wellnesscenter' },
+  { title: 'Gåvor', label: 'Blommor, presenter och nödvändigheter för alla tillfällen' },
+  { title: 'Nöje', label: 'Unika aktiviteter och upplevelser i närheten' },
 ];
 
 const Page = () => {
   const [loading, setLoading] = useState(true);
-  const [loadingGeocoding, setLoadingGeocoding] = useState(false); // New state for geocoding
+  const [loadingGeocoding, setLoadingGeocoding] = useState(false);
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [filteredOrganizations, setFilteredOrganizations] = useState<Organization[]>([]);
   const [selected, setSelected] = useState(sections[0]);
@@ -52,16 +52,14 @@ const Page = () => {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const headerHeight = useHeaderHeight();
   const MAPBOX_API_KEY = 'pk.eyJ1IjoiZmlza21hdCIsImEiOiJjbTF3ZmYyYXUwbmgyMmpzamlrNXVtbjdrIn0.717Y9Y6vuzKRdjlfRxaKkw';
-  
+
   useEffect(() => {
-    // Get user location
     const getUserLocation = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         console.error('Permission to access location was denied');
         return;
       }
-    
       const location = await Location.getCurrentPositionAsync({});
       setUserLocation({
         latitude: location.coords.latitude,
@@ -73,16 +71,11 @@ const Page = () => {
       try {
         const response = await fetch(
           'https://kakfeitxqdcmedofleip.supabase.co/functions/v1/fetch-organizations',
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
+          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
         );
         const data: Organization[] = await response.json();
         setOrganizations(data);
-        setFilteredOrganizations(data);
+        setFilteredOrganizations(data); // Set initial organizations
       } catch (error) {
         console.error('Error fetching organizations:', error);
       } finally {
@@ -93,6 +86,65 @@ const Page = () => {
     getUserLocation();
     fetchOrganizations();
   }, []);
+
+  const applyFilters = () => {
+    if (searchQuery.trim()) {
+      // Search across all organizations if search query is present
+      const results = organizations.filter((org) =>
+        org.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredOrganizations(results);
+    } else if (selected.title !== 'Nära dig') {
+      // Filter by selected category if no search query is present
+      const filteredByCategory = organizations.filter(
+        (org) => org.category === selected.title
+      );
+      setFilteredOrganizations(filteredByCategory);
+    } else {
+      setFilteredOrganizations(organizations); // Default to all if no section or query selected
+    }
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [searchQuery, selected, organizations]);
+
+  useEffect(() => {
+    if (userLocation && selected.title === 'Nära dig') {
+      const fetchDistances = async () => {
+        setLoadingGeocoding(true);
+        const nearbyOrganizations: Organization[] = [];
+
+        for (const org of organizations) {
+          const mapboxUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+            org.address
+          )}.json?access_token=${MAPBOX_API_KEY}`;
+          try {
+            const response = await fetch(mapboxUrl);
+            const data = await response.json();
+            if (data.features.length > 0) {
+              const [lon, lat] = data.features[0].center;
+              const distance = calculateDistance(
+                userLocation.latitude,
+                userLocation.longitude,
+                lat,
+                lon
+              );
+              if (distance <= 5) {
+                nearbyOrganizations.push(org);
+              }
+            }
+          } catch (error) {
+            console.error(`Error with Mapbox geocoding for ${org.name}:`, error);
+          }
+        }
+        setFilteredOrganizations(nearbyOrganizations);
+        setLoadingGeocoding(false);
+      };
+
+      fetchDistances();
+    }
+  }, [userLocation, selected, organizations]);
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371; // Radius of the Earth in km
@@ -108,82 +160,17 @@ const Page = () => {
     return R * c; // Distance in km
   };
 
-  // Filter organizations based on user location
-  useEffect(() => {
-    if (userLocation && selected.title === 'Nära dig') {
-      const fetchDistances = async () => {
-        setLoadingGeocoding(true); // Start geocoding
-        const nearbyOrganizations: Organization[] = [];
-  
-        for (const org of organizations) {
-          const mapboxUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-            org.address
-          )}.json?access_token=${MAPBOX_API_KEY}`;
-          
-          try {
-            const response = await fetch(mapboxUrl);
-            const data = await response.json();
-  
-            
-  
-            if (data.features.length > 0) {
-              // Access the 'center' array properly for latitude and longitude
-              const [lon, lat] = data.features[0].center;
-              
-  
-              const distance = calculateDistance(
-                userLocation.latitude,
-                userLocation.longitude,
-                lat,
-                lon
-              );
-  
-              
-  
-              if (distance <= 5) {
-                
-                nearbyOrganizations.push(org);
-              }
-            }
-          } catch (error) {
-            console.error(`Error with Mapbox geocoding for ${org.name}:`, error);
-          }
-        }
-  
-        setFilteredOrganizations(nearbyOrganizations);
-
-        setLoadingGeocoding(false); // Geocoding finished
-      };
-  
-      fetchDistances();
-    } else {
-      setFilteredOrganizations(organizations);
-    }
-  }, [userLocation, selected, organizations]);
-
-  useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredOrganizations(organizations); // Reset when search is cleared
-    } else {
-      const results = organizations.filter((org) =>
-        org.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredOrganizations(results);
-    }
-  }, [searchQuery, organizations]);
-
   const { width: deviceWidth } = useWindowDimensions();
   const searchBarStyle = useAnimatedStyle(() => {
     return {
-      width: withTiming(isSearchOpen ? deviceWidth - 70 : 0, { duration: 300 }), // Animate width
+      width: withTiming(isSearchOpen ? deviceWidth - 70 : 0, { duration: 300 }),
       opacity: withTiming(isSearchOpen ? 1 : 0, { duration: 300 }),
-      marginLeft: 10, // Animate opacity
+      marginLeft: 10,
     };
   });
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header and Drawer Setup */}
       <Drawer.Screen
         options={{
           headerBackground: () => (
@@ -196,7 +183,6 @@ const Page = () => {
           headerTransparent: true,
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>
-              {/* Search Bar */}
               <Animated.View style={[styles.searchBar, searchBarStyle]}>
                 <TextInput
                   value={searchQuery}
@@ -206,12 +192,10 @@ const Page = () => {
                   style={styles.searchInput}
                 />
               </Animated.View>
-
-              {/* Search Icon */}
               <TouchableOpacity
                 onPress={() => {
-                  setIsSearchOpen(!isSearchOpen); // Toggle search bar
-                  if (isSearchOpen) setSearchQuery(''); // Reset search query if closing
+                  setIsSearchOpen(!isSearchOpen);
+                  if (isSearchOpen) setSearchQuery('');
                 }}
               >
                 <Ionicons name="search" size={24} color={Colors.grey} />
@@ -246,60 +230,48 @@ const Page = () => {
         }}
       />
 
-      {/* Main Content */}
       <ScrollView contentContainerStyle={{ paddingTop: headerHeight - 40 }}>
-        {sections.map((section, index) => (
-          <React.Fragment key={index}>
-            {selected === section && (
-              <Animated.View
-                style={styles.section}
-                entering={FadeIn.duration(600).delay(400)}
-                exiting={FadeOut.duration(400)}>
-                <ShimmerPlaceholder width={160} height={20} visible={!loading}>
-                  <Text style={styles.title}>{selected.title}</Text>
-                </ShimmerPlaceholder>
+        <Animated.View
+          style={styles.section}
+          entering={FadeIn.duration(600).delay(400)}
+          exiting={FadeOut.duration(400)}>
+          <ShimmerPlaceholder width={160} height={20} visible={!loading}>
+            <Text style={styles.title}>{selected.title}</Text>
+          </ShimmerPlaceholder>
+          <ShimmerPlaceholder
+            width={280}
+            height={20}
+            visible={!loading}
+            shimmerStyle={{ marginVertical: 10 }}>
+            <Text style={styles.label}>{selected.label}</Text>
+          </ShimmerPlaceholder>
+
+          {loading || loadingGeocoding ? (
+            <ActivityIndicator size="large" color={Colors.grey} />
+          ) : (
+            filteredOrganizations.map((organization, idx) => (
+              <View key={idx} style={styles.card}>
                 <ShimmerPlaceholder
-                  width={280}
-                  height={20}
-                  visible={!loading}
-                  shimmerStyle={{ marginVertical: 10 }}>
-                  <Text style={styles.label}>{selected.label}</Text>
+                  width={60}
+                  height={60}
+                  shimmerStyle={{ borderRadius: 30 }}
+                  visible={!loading}>
+                  <Image source={{ uri: organization.image || 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }} style={styles.cardImage} />
                 </ShimmerPlaceholder>
 
-                {/* Content (Filtered Organizations) */}
-                {loading || loadingGeocoding ? (
-                  <ActivityIndicator size="large" color={Colors.grey} />
-                ) : (
-                  filteredOrganizations.map((organization, idx) => (
-                    <View key={idx} style={styles.card}>
-                      <ShimmerPlaceholder
-                        width={60}
-                        height={60}
-                        shimmerStyle={{ borderRadius: 30 }}
-                        visible={!loading}>
-                        <Image source={{ uri: organization.imageUrl || 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }} style={styles.cardImage} />
-                      </ShimmerPlaceholder>
+                <View style={{ flexShrink: 1, gap: 4 }}>
+                  <ShimmerPlaceholder width={160} height={20} visible={!loading}>
+                    <Text style={styles.cardTitle}>{organization.name}</Text>
+                  </ShimmerPlaceholder>
 
-                      <View style={{ flexShrink: 1, gap: 4 }}>
-                        <ShimmerPlaceholder width={160} height={20} visible={!loading}>
-                          <Text style={styles.cardTitle}>{organization.name}</Text>
-                        </ShimmerPlaceholder>
-
-                        <ShimmerPlaceholder width={160} height={20} visible={!loading}>
-                          <Text style={styles.cardDesc}>{organization.description}</Text>
-                        </ShimmerPlaceholder>
-
-                        <ShimmerPlaceholder width={250} height={20} visible={!loading}>
-                          <Text style={styles.cardAuthor}>{organization.author}</Text>
-                        </ShimmerPlaceholder>
-                      </View>
-                    </View>
-                  ))
-                )}
-              </Animated.View>
-            )}
-          </React.Fragment>
-        ))}
+                  <ShimmerPlaceholder width={160} height={20} visible={!loading}>
+                    <Text style={styles.cardDesc}>{organization.description}</Text>
+                  </ShimmerPlaceholder>
+                </View>
+              </View>
+            ))
+          )}
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -359,7 +331,6 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 8,
-   
     padding: 16,
     marginBottom: 8,
     flexDirection: 'row',
@@ -379,11 +350,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#000',
   },
-  cardAuthor: {
-    fontSize: 14,
-    color: '#666',
-  },
 });
 
 export default Page;
-
