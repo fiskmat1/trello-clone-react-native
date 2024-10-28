@@ -10,6 +10,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import SearchBar from '@/components/SearchBar';
+import * as Notifications from 'expo-notifications';
 import { SafeAreaView } from 'react-native';
 import { useAuth } from '@clerk/clerk-expo';
 import { useNavigation } from '@react-navigation/native';
@@ -48,8 +49,16 @@ const Page = () => {
   };
 
   useEffect(() => {
+    const requestNotificationPermission = async () => {
+      const { status } = await Notifications.getPermissionsAsync();
+      if (status !== 'granted') {
+        await Notifications.requestPermissionsAsync();
+      }
+    };
+
     if (isSignedIn) {
       fetchOrganizations();
+      requestNotificationPermission(); // Request notification permission after sign-in
     }
   }, [isSignedIn]);
 
@@ -60,6 +69,14 @@ const Page = () => {
   const handleOrgPress = (id) => {
     if (userId) {
       navigation.navigate('organization/[id]', { id, appuserId: userId });
+    } else {
+      console.error('User is not signed in');
+    }
+  };
+
+  const handleSavedPress = () => {
+    if (userId) {
+      navigation.navigate('saved');
     } else {
       console.error('User is not signed in');
     }
@@ -123,7 +140,7 @@ const Page = () => {
               </BlurView>
 
               <BlurView intensity={50} tint="light" style={[styles.categoryCard, styles.cardFour]}>
-                <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
+                <TouchableOpacity onPress={handleSavedPress} style={{ flex: 1 }}>
                   <Text style={styles.categoryTitle}>Sparade</Text>
                   <Text style={styles.categoryDesc}>Sparade butiker</Text>
                   <View style={styles.iconContainer}>
@@ -150,7 +167,7 @@ const Page = () => {
                       <View style={styles.orgCard}>
                       <Image
                           source={{
-                            uri: org.image || 'https://default-image-url.com/fallback.png', // Fallback image if org.image is undefined
+                            uri: org.image || 'https://i.imgur.com/wcc4vdN.png', // Fallback image if org.image is undefined
                           }}
                           style={styles.orgImage}
                         />
@@ -185,7 +202,7 @@ const Page = () => {
                       <View style={styles.orgCard}>
                         <Image
                           source={{
-                            uri: org.image || 'https://i.imgur.com/5Jj2TF7.gif', // Fallback image if org.image is undefined
+                            uri: org.image || 'https://i.imgur.com/wcc4vdN.png', // Fallback image if org.image is undefined
                           }}
                           style={styles.orgImage}
                         />
@@ -195,7 +212,7 @@ const Page = () => {
                             <Coins size={14} color="orange" style={styles.coinIcon} />
                             <Text style={styles.orgInfo}>• samla poäng • {org.category}</Text>
                           </View>
-                          <Text style={styles.orgDeliveryInfo}>10-25 min • 29 kr</Text>
+                          <Text style={styles.orgDeliveryInfo}>Se mer</Text>
                         </View>
                       </View>
                     </TouchableOpacity>

@@ -10,17 +10,23 @@ import {
   Image,
   useWindowDimensions,
   ActivityIndicator,
+  ImageBackground
 } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
+import { Store, Soup, ShoppingCart, Heart, Gift, Music, Earth, Footprints, PartyPopper } from 'lucide-react-native';
 import { Header, getHeaderTitle, useHeaderHeight } from '@react-navigation/elements';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, withTiming, FadeIn, FadeOut } from 'react-native-reanimated';
+import { useNavigation } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { Colors } from '@/constants/Colors';
+import { useAuth } from '@clerk/clerk-expo';
+import tw from 'tailwind-react-native-classnames';
 
+const backgroundImageUrl = "https://i.imgur.com/j5YfcXX.png";
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
 type Organization = {
@@ -33,13 +39,22 @@ type Organization = {
 };
 
 const sections = [
-  { title: 'Nära dig', label: 'Handplockade favoriter från veckan' },
+  { title: 'Nära dig', label: 'Butiker nära dig just nu' },
   { title: 'Mat', label: 'Upptäck trendiga restauranger och matställen' },
   { title: 'Butiker', label: 'Utforska lokala butiker och butiker' },
   { title: 'Hälsa', label: 'Bästa gym, spa och wellnesscenter' },
   { title: 'Gåvor', label: 'Blommor, presenter och nödvändigheter för alla tillfällen' },
   { title: 'Nöje', label: 'Unika aktiviteter och upplevelser i närheten' },
 ];
+
+const iconMap = {
+  'Nära dig': Footprints,
+  'Mat': Soup,
+  'Butiker': Store,
+  'Hälsa': Heart,
+  'Gåvor': Gift,
+  'Nöje': PartyPopper,
+};
 
 const Page = () => {
   const [loading, setLoading] = useState(true);
@@ -52,6 +67,12 @@ const Page = () => {
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const headerHeight = useHeaderHeight();
   const MAPBOX_API_KEY = 'pk.eyJ1IjoiZmlza21hdCIsImEiOiJjbTF3ZmYyYXUwbmgyMmpzamlrNXVtbjdrIn0.717Y9Y6vuzKRdjlfRxaKkw';
+  const navigation = useNavigation();
+  const { userId } = useAuth();
+
+  const handleOrgPress = (id) => {
+    navigation.navigate('organization/[id]', { id, appuserId: userId });
+  };
 
   useEffect(() => {
     const getUserLocation = async () => {
@@ -75,7 +96,7 @@ const Page = () => {
         );
         const data: Organization[] = await response.json();
         setOrganizations(data);
-        setFilteredOrganizations(data); // Set initial organizations
+        setFilteredOrganizations(data);
       } catch (error) {
         console.error('Error fetching organizations:', error);
       } finally {
@@ -89,19 +110,17 @@ const Page = () => {
 
   const applyFilters = () => {
     if (searchQuery.trim()) {
-      // Search across all organizations if search query is present
       const results = organizations.filter((org) =>
         org.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredOrganizations(results);
     } else if (selected.title !== 'Nära dig') {
-      // Filter by selected category if no search query is present
       const filteredByCategory = organizations.filter(
         (org) => org.category === selected.title
       );
       setFilteredOrganizations(filteredByCategory);
     } else {
-      setFilteredOrganizations(organizations); // Default to all if no section or query selected
+      setFilteredOrganizations(organizations);
     }
   };
 
@@ -146,8 +165,8 @@ const Page = () => {
     }
   }, [userLocation, selected, organizations]);
 
-  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
-    const R = 6371; // Radius of the Earth in km
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
     const dLat = ((lat2 - lat1) * Math.PI) / 180;
     const dLon = ((lon2 - lon1) * Math.PI) / 180;
     const a =
@@ -157,7 +176,7 @@ const Page = () => {
         Math.sin(dLon / 2) *
         Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distance in km
+    return R * c;
   };
 
   const { width: deviceWidth } = useWindowDimensions();
@@ -169,118 +188,116 @@ const Page = () => {
     };
   });
 
+  const IconComponent = iconMap[selected.title];
+
   return (
-    <SafeAreaView style={styles.container}>
-      <Drawer.Screen
-        options={{
-          headerBackground: () => (
-            <BlurView
-              intensity={60}
-              tint={'light'}
-              style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(256, 256, 256, 0.5)' }]}
-            />
-          ),
-          headerTransparent: true,
-          headerRight: () => (
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>
-              <Animated.View style={[styles.searchBar, searchBarStyle]}>
-                <TextInput
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  placeholder="Search..."
-                  placeholderTextColor={Colors.grey}
-                  style={styles.searchInput}
-                />
-              </Animated.View>
-              <TouchableOpacity
-                onPress={() => {
-                  setIsSearchOpen(!isSearchOpen);
-                  if (isSearchOpen) setSearchQuery('');
-                }}
-              >
-                <Ionicons name="search" size={24} color={Colors.grey} />
-              </TouchableOpacity>
-            </View>
-          ),
-          header: ({ options, route }) => (
-            <View>
-              <Header {...options} title={getHeaderTitle(options, route.name)} />
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ gap: 8, paddingHorizontal: 16, paddingVertical: 10 }}>
-                {sections.map((section, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      setSelected(section);
-                    }}
-                    style={selected === section ? styles.sectionBtnSelected : styles.sectionBtn}>
-                    <Text
-                      style={
-                        selected === section ? styles.sectionBtnTextSelected : styles.sectionBtnText
-                      }>
-                      {section.title}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </View>
-          ),
-        }}
-      />
-
-      <ScrollView contentContainerStyle={{ paddingTop: headerHeight - 40 }}>
-        <Animated.View
-          style={styles.section}
-          entering={FadeIn.duration(600).delay(400)}
-          exiting={FadeOut.duration(400)}>
-          <ShimmerPlaceholder width={160} height={20} visible={!loading}>
-            <Text style={styles.title}>{selected.title}</Text>
-          </ShimmerPlaceholder>
-          <ShimmerPlaceholder
-            width={280}
-            height={20}
-            visible={!loading}
-            shimmerStyle={{ marginVertical: 10 }}>
-            <Text style={styles.label}>{selected.label}</Text>
-          </ShimmerPlaceholder>
-
+   
+      <SafeAreaView style={styles.container}>
+        <Drawer.Screen
+          options={{
+            headerBackground: () => (
+              <BlurView
+                intensity={100}
+                tint={'light'}
+                style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(256, 256, 256, 0.5)' }]}
+              />
+            ),
+            headerTransparent: true,
+            headerRight: () => (
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 16 }}>
+                <Animated.View style={[styles.searchBar, searchBarStyle]}>
+                  <TextInput
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholder="Search..."
+                    placeholderTextColor={Colors.grey}
+                    style={styles.searchInput}
+                  />
+                </Animated.View>
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsSearchOpen(!isSearchOpen);
+                    if (isSearchOpen) setSearchQuery('');
+                  }}
+                >
+                  <Ionicons name="search" size={24} color={Colors.grey} />
+                </TouchableOpacity>
+              </View>
+            ),
+            header: ({ options, route }) => (
+              <View>
+                <Header {...options} title={getHeaderTitle(options, route.name)} />
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ gap: 8, paddingHorizontal: 16, paddingVertical: 10 }}>
+                  {sections.map((section, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => setSelected(section)}
+                      style={selected === section ? styles.sectionBtnSelected : styles.sectionBtn}>
+                      <Text style={selected === section ? styles.sectionBtnTextSelected : styles.sectionBtnText}>
+                        {section.title}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            ),
+          }}
+        />
+         <ImageBackground source={{ uri: backgroundImageUrl }} style={{ flex: 1, marginTop:70 }} resizeMode="cover">
+        <BlurView intensity={80} tint="light" style={[styles.sectionCard, { marginTop: headerHeight-100 }]}>
+          <View style={tw`flex-row`}>
+          {IconComponent && <IconComponent stroke={'black'} style={tw`mr-1.5 mt-0.5`} />}
+          <Text style={styles.sectionTitle}>{selected.title}</Text>
+          </View>
+          <Text style={styles.sectionLabel}>{selected.label}</Text>
+        </BlurView>
+          
+        <View style={styles.orgContainerCard}>
+        <BlurView intensity={80} tint="light" style={styles.orgBlurCard} >
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 16, marginTop: 20 }}>
           {loading || loadingGeocoding ? (
             <ActivityIndicator size="large" color={Colors.grey} />
           ) : (
             filteredOrganizations.map((organization, idx) => (
-              <View key={idx} style={styles.card}>
-                <ShimmerPlaceholder
-                  width={60}
-                  height={60}
-                  shimmerStyle={{ borderRadius: 30 }}
-                  visible={!loading}>
-                  <Image source={{ uri: organization.image || 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' }} style={styles.cardImage} />
-                </ShimmerPlaceholder>
-
-                <View style={{ flexShrink: 1, gap: 4 }}>
-                  <ShimmerPlaceholder width={160} height={20} visible={!loading}>
-                    <Text style={styles.cardTitle}>{organization.name}</Text>
+              <TouchableOpacity key={idx} onPress={() => handleOrgPress(organization.id)} style={styles.cardWrapper}>
+                <View style={styles.cardContainer}>
+                <BlurView intensity={60} tint="light" style={styles.card}>
+                  <ShimmerPlaceholder width={60} height={60} shimmerStyle={{ borderRadius: 30 }} visible={!loading}>
+                    <Image
+                      source={{
+                        uri: organization.image || 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+                      }}
+                      style={styles.cardImage}
+                    />
                   </ShimmerPlaceholder>
-
-                  <ShimmerPlaceholder width={160} height={20} visible={!loading}>
-                    <Text style={styles.cardDesc}>{organization.description}</Text>
-                  </ShimmerPlaceholder>
+                  <View style={styles.cardContent}>
+                    <ShimmerPlaceholder width={160} height={20} visible={!loading}>
+                      <Text style={styles.cardTitle}>{organization.name}</Text>
+                    </ShimmerPlaceholder>
+                    <ShimmerPlaceholder width={160} height={20} visible={!loading}>
+                      <Text style={styles.cardDesc}>{organization.description}</Text>
+                    </ShimmerPlaceholder>
+                  </View>
+                </BlurView>
                 </View>
-              </View>
+              </TouchableOpacity>
             ))
           )}
-        </Animated.View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+        </BlurView>
+        </View>
+        </ImageBackground>
+      </SafeAreaView>
+    
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
   },
   searchBar: {
     height: 37,
@@ -296,18 +313,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     width: '100%',
   },
-  section: {
-    padding: 16,
+  sectionCard: {
+    marginBottom: 16,
+    padding: 28,
+    marginTop: 25,
+    marginHorizontal: 16,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    overflow: 'hidden',
   },
-  title: {
+  sectionTitle: {
     fontSize: 24,
     fontWeight: 'bold',
+    color: 'black',
     marginBottom: 8,
   },
-  label: {
+  sectionLabel: {
     fontSize: 16,
-    color: '#666',
-    marginBottom: 16,
+    color: '#666'
   },
   sectionBtn: {
     backgroundColor: '#EDEDEF',
@@ -316,10 +339,21 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   sectionBtnSelected: {
-    backgroundColor: Colors.grey,
+    backgroundColor: '#7D7D7F',
     borderRadius: 14,
     paddingHorizontal: 12,
     paddingVertical: 6,
+  },
+  orgContainerCard: {
+    paddingHorizontal:15,
+    borderRadius: 15,
+    height: '72%',
+    overflow: 'hidden'
+  },
+  orgBlurCard: {
+    borderRadius: 15,
+    height: '80%',
+    overflow: 'hidden'
   },
   sectionBtnText: {
     color: '#000',
@@ -329,26 +363,39 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '500',
   },
-  card: {
-    borderRadius: 8,
-    padding: 16,
+  cardWrapper: {
     marginBottom: 8,
+    borderRadius: 12,
+  },
+  cardContainer: {
+    borderRadius: 12,
+    overflow: 'hidden', // Ensures BlurView respects the border radius
+  },
+  card: {
+    borderRadius: 12,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   cardImage: {
     width: 60,
     height: 60,
     borderRadius: 15,
   },
+  cardContent: {
+    borderRadius: 12,
+    flexShrink: 1,
+    marginLeft: 16,
+  },
   cardTitle: {
     fontSize: 16,
     fontWeight: '600',
+    color: '#333',
   },
   cardDesc: {
     fontSize: 14,
-    color: '#000',
+    color: '#666',
   },
 });
 

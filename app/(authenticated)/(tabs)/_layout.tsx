@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/Colors';
 import { Tabs } from 'expo-router';
 import { Image } from 'react-native';
-import { QrCode, Bell, User, House, Search } from 'lucide-react-native'; // Importing Lucide icons
+import { QrCode, Bell, User, House, Search, Bookmark, Book } from 'lucide-react-native'; // Importing Lucide icons
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Canvas, DiffRect, rect, rrect } from "@shopify/react-native-skia";
 import { View } from 'react-native';
@@ -61,16 +61,16 @@ const Layout = () => {
         
       />
       <Tabs.Screen
-        name="notifications"
+        name="saved"
         options={{
           headerStyle: {
             elevation: 0, // Remove shadow on Android
             shadowOpacity: 0, // Remove shadow on iOS
             borderBottomWidth: 0, // Hide the bottom border
           },
-          title: 'Notiser',
+          title: 'Sparade',
           tabBarIcon: ({ size, color }) => (
-            <Bell size={size} color={color} /> // Using Lucide's Bell icon for notifications
+            <Bookmark size={size} color={color} /> // Using Lucide's Bell icon for notifications
           ),
         }}
       />
