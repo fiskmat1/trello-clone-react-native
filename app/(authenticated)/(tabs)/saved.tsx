@@ -17,9 +17,10 @@ import { Coins } from 'lucide-react-native';
 import tw from 'tailwind-react-native-classnames';
 import { BlurView } from 'expo-blur';
 import { useNavigation } from '@react-navigation/native';
-import { Bookmark } from 'lucide-react-native';
+import { Bookmark, ChevronRight } from 'lucide-react-native';
+import logoCoinTransparentExtra from '@/assets/images/logoCoinextra.png';
 
-const backgroundImageUrl = "https://i.imgur.com/j5YfcXX.png";
+const backgroundImageUrl = "https://i.imgur.com/xuU9pfX.png";
 
 const Page = () => {
   const { userId } = useAuth();
@@ -129,12 +130,15 @@ const Page = () => {
                     </ShimmerPlaceholder>
 
                     <ShimmerPlaceholder width={160} height={20} visible={!loading}>
-                      <Text style={styles.cardDesc}>{organization.description}</Text>
+                    <View style={tw`items-center flex-row`}>
+                      <Text style={styles.cardDesc}>Se mer</Text>
+                      <ChevronRight stroke={'black'} size={11} style={tw`mt-0.5`} />
+                      </View>
                     </ShimmerPlaceholder>
                     
-                    <View style={tw `flex-row`}>
+                    <View style={tw `flex-row items-center`}>
                       <Text style={styles.pointsText}>{organization.points}</Text>
-                      <Coins stroke={'orange'} size={16} style={tw`ml-1`} />
+                      <Image source={logoCoinTransparentExtra} style={styles.coinImage} />
                     </View>
                   </View>
                 </BlurView>
@@ -163,6 +167,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F2F1F3',
   },
   sectionTitle: {
     fontSize: 24,
@@ -183,7 +189,9 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 15,
     height: '90%',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F2F1F3',
   },
   card: {
     flexDirection: 'row',
@@ -191,7 +199,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.15)', // Semi-transparent background for glass effect
     borderRadius: 16,
     alignItems: 'center',
-    gap: 16
+    gap: 16,
+    
   },
   cardImage: {
     width: 60,
@@ -211,6 +220,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     fontWeight: '500',
+  },
+  coinImage: {
+    width: 35,
+    height: 35,
+    alignSelf: 'center',
+    marginLeft: -4
+ 
+
   },
 });
 

@@ -18,8 +18,10 @@ import tw from 'tailwind-react-native-classnames';
 import { Info, User, Store, Glasses, Soup, BookMarked, Coins } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
 import { Colors } from '@/constants/Colors';
+import logoCoinTransparent from '@/assets/images/logoCoinTransparentFull.png';
+import logoCoinTransparentExtra from '@/assets/images/logoCoinextra.png';
 
-const backgroundImageUrl = "https://i.imgur.com/j5YfcXX.png";
+const backgroundImageUrl = "https://i.imgur.com/xuU9pfX.png";
 
 const Page = () => {
   const [organizations, setOrganizations] = useState([]);
@@ -166,15 +168,17 @@ const Page = () => {
                     <TouchableOpacity onPress={() => handleOrgPress(org.id)}>
                       <View style={styles.orgCard}>
                       <Image
-                          source={{
-                            uri: org.image || 'https://i.imgur.com/wcc4vdN.png', // Fallback image if org.image is undefined
-                          }}
+                          source={
+                            org.image
+                              ? { uri: org.image }
+                              : logoCoinTransparentExtra // Use local image if org.image is undefined
+                          }
                           style={styles.orgImage}
                         />
                         <View style={styles.orgDetails}>
                           <Text style={styles.orgName}>{org.name}</Text>
                           <View style={styles.orgInfoContainer}>
-                            <Coins size={14} color="orange" style={styles.coinIcon} />
+                          <Image source={logoCoinTransparent} style={styles.coinImage} />
                             <Text style={styles.orgInfo}>• samla poäng • {org.category}</Text>
                           </View>
                           <Text style={styles.orgDeliveryInfo}>Se mer</Text>
@@ -200,10 +204,12 @@ const Page = () => {
                   <BlurView intensity={50} tint="light" style={styles.cardWrapper} key={org.id}>
                     <TouchableOpacity onPress={() => handleOrgPress(org.id)}>
                       <View style={styles.orgCard}>
-                        <Image
-                          source={{
-                            uri: org.image || 'https://i.imgur.com/wcc4vdN.png', // Fallback image if org.image is undefined
-                          }}
+                      <Image
+                          source={
+                            org.image
+                              ? { uri: org.image }
+                              : logoCoinTransparentExtra // Use local image if org.image is undefined
+                          }
                           style={styles.orgImage}
                         />
                         <View style={styles.orgDetails}>
@@ -310,6 +316,8 @@ const styles = StyleSheet.create({
   cardOne: {
     backgroundColor: 'rgba(0, 0, 0, 0.005)',
     height: 213,
+    borderWidth: 1,
+    borderColor: '#F2F1F3',
   },
   cardTwo: {
     backgroundColor: 'rgba(0, 0, 0, 0.005)',
@@ -317,11 +325,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
+    borderWidth: 1,
+    borderColor: '#F2F1F3',
   },
   cardThree: {
     backgroundColor: 'rgba(0, 0, 0, 0.005)',
     height: 160,
     marginTop: 140,
+    borderWidth: 1,
+    borderColor: '#F2F1F3',
   },
   cardFour: {
     backgroundColor: 'rgba(0, 0, 0, 0.005)',
@@ -329,6 +341,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     bottom: 0,
+    borderWidth: 1,
+    borderColor: '#F2F1F3',
   },
   categoryTitle: {
     fontSize: 16,
@@ -339,6 +353,11 @@ const styles = StyleSheet.create({
   categoryDesc: {
     fontSize: 12,
     color: 'gray',
+  },
+  coinImage: {
+    width: 17,
+    height: 17,
+    marginRight: 4, // Adds space between the image and the text
   },
   iconContainer: {
     position: 'absolute',

@@ -13,7 +13,7 @@ import {
   ImageBackground
 } from 'react-native';
 import { Drawer } from 'expo-router/drawer';
-import { Store, Soup, ShoppingCart, Heart, Gift, Music, Earth, Footprints, PartyPopper } from 'lucide-react-native';
+import { Store, Soup, ShoppingCart, Heart, Gift, Music, Earth, Footprints, PartyPopper, ChevronRight } from 'lucide-react-native';
 import { Header, getHeaderTitle, useHeaderHeight } from '@react-navigation/elements';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,7 +26,7 @@ import { Colors } from '@/constants/Colors';
 import { useAuth } from '@clerk/clerk-expo';
 import tw from 'tailwind-react-native-classnames';
 
-const backgroundImageUrl = "https://i.imgur.com/j5YfcXX.png";
+const backgroundImageUrl = "https://i.imgur.com/xuU9pfX.png";
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
 type Organization = {
@@ -278,7 +278,10 @@ const Page = () => {
                       <Text style={styles.cardTitle}>{organization.name}</Text>
                     </ShimmerPlaceholder>
                     <ShimmerPlaceholder width={160} height={20} visible={!loading}>
-                      <Text style={styles.cardDesc}>{organization.description}</Text>
+                      <View style={tw`items-center flex-row`}>
+                      <Text style={styles.cardDesc}>Se mer</Text>
+                      <ChevronRight stroke={'black'} size={11} style={tw`mt-1.5`} />
+                      </View>
                     </ShimmerPlaceholder>
                   </View>
                 </BlurView>
@@ -321,6 +324,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F2F1F3',
   },
   sectionTitle: {
     fontSize: 24,
@@ -353,7 +358,9 @@ const styles = StyleSheet.create({
   orgBlurCard: {
     borderRadius: 15,
     height: '80%',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F2F1F3',
   },
   sectionBtnText: {
     color: '#000',
@@ -396,6 +403,7 @@ const styles = StyleSheet.create({
   cardDesc: {
     fontSize: 14,
     color: '#666',
+    marginTop: 5
   },
 });
 

@@ -20,12 +20,7 @@ const LOGIN_OPTIONS = [
     text: 'Continue with Apple',
     icon: require('@/assets/images/login/apple.png'),
     strategy: AuthStrategy.Apple,
-  },
-  {
-    text: 'Continue with Slack',
-    icon: require('@/assets/images/login/slack.png'),
-    strategy: AuthStrategy.Slack,
-  },
+  }
 ];
 
 interface AuthModalProps {
@@ -36,7 +31,7 @@ const AuthModal = ({ authType }: AuthModalProps) => {
   useWarmUpBrowser();
   const { startOAuthFlow: googleAuth } = useOAuth({ strategy: AuthStrategy.Google });
   const { startOAuthFlow: microsoftAuth } = useOAuth({ strategy: AuthStrategy.Microsoft });
-  const { startOAuthFlow: slackAuth } = useOAuth({ strategy: AuthStrategy.Slack });
+ 
   const { startOAuthFlow: appleAuth } = useOAuth({ strategy: AuthStrategy.Apple });
   const { signUp, setActive } = useSignUp();
   const { signIn } = useSignIn();
@@ -47,7 +42,6 @@ const AuthModal = ({ authType }: AuthModalProps) => {
     const selectedAuth = {
       [AuthStrategy.Google]: googleAuth,
       [AuthStrategy.Microsoft]: microsoftAuth,
-      [AuthStrategy.Slack]: slackAuth,
       [AuthStrategy.Apple]: appleAuth,
     }[strategy];
 

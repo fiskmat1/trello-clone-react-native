@@ -18,11 +18,18 @@ import { BlurView } from 'expo-blur';
 import tw from 'tailwind-react-native-classnames';
 import LottieView from 'lottie-react-native'
 import QRCode from 'react-native-qrcode-svg';
-import NFCReader from '@/components/NFCReader';
+import CryptoJS from "react-native-crypto-js";
+import logoCoinTransparent from '@/assets/images/logoCoinTransparentFull.png';
+import logoCoinTransparentExtra from '@/assets/images/logoCoinextra.png';
 
 type OrganizationRouteProp = RouteProp<{ params: { id: string; appuserId: string; getToken: string } }, 'params'>;
 
+const SECRET_KEY = `${process.env.SECRET_KEY}`; // Replace with a securely stored key
 
+// Encrypt QR code content
+const encryptQrCodeContent = (content) => {
+  return CryptoJS.AES.encrypt(content, SECRET_KEY).toString();
+};
 
 const OrganizationPage = () => {
   const [organization, setOrganization] = useState<any>(null);
@@ -42,8 +49,12 @@ const OrganizationPage = () => {
   const { id, appuserId } = route.params;
   const { session } = useSession();
 
-  function generateQrCodeContent(selectedReward) {
-    return `${selectedReward?.title || 'Reward'}_${Date.now()}`;
+  function generateQrCodeContent(reward) {
+    const content = JSON.stringify({
+      rewardTitle: reward?.title || 'Reward',
+      timestamp: Date.now(),
+    });
+    return encryptQrCodeContent(content);
   }
 
   useEffect(() => {
@@ -194,7 +205,11 @@ const OrganizationPage = () => {
     <View style={styles.container}>
       {/* Display organization image at the top */}
       
-        <Image source={{ uri: organization.image || 'https://i.imgur.com/5Jj2TF7.gif', }} style={styles.organizationImage} />
+        <Image source={
+                            organization.image
+                              ? { uri: organization.image }
+                              : logoCoinTransparentExtra // Use local image if org.image is undefined
+                          } style={styles.organizationImage} />
      
 
       <View style={styles.header}>
@@ -202,7 +217,7 @@ const OrganizationPage = () => {
         {isJoined && (
           <View style={styles.pointsContainer}>
             <Text style={styles.loyaltyPoints}>{loyaltyPoints}</Text>
-            <Coins stroke={'orange'} style={styles.coinIcon} />
+            <Image source={logoCoinTransparent} style={styles.coinImage} />
           </View>
         )}
       </View>
@@ -238,7 +253,7 @@ const OrganizationPage = () => {
                     onPress={() => openConfirmModal(reward)}  // Trigger modal on press
                   >
                     <Text style={styles.buttonText}>{reward.pointsRequired}</Text>
-                    <Coins stroke={'orange'} size={16} style={styles.coinIconSmall} />
+                    <Image source={logoCoinTransparent} style={styles.coinImageSmall} />
                   </TouchableOpacity>
                 </Animated.View>
               </Pressable>
@@ -534,7 +549,15 @@ const styles = StyleSheet.create({
   iconStyle: {
     marginBottom: 20,
   },
-
+  coinImage: {
+    width: 25,
+    height: 25,
+    marginRight: 4, // Adds space between the image and the text
+  },
+  coinImageSmall: {
+    width: 20,
+    height: 20, // Adds space between the image and the text
+  },
   verificationText: {
     fontSize: 24,
     fontWeight: 'bold',

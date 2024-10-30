@@ -12,11 +12,7 @@
       "distribution": "internal"
     },
     "production": {
-      "env": {
-        "EXPO_PUBLIC_SUPABASE_URL": "https://kakfeitxqdcmedofleip.supabase.co",
-        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtha2ZlaXR4cWRjbWVkb2ZsZWlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk0MTg2NzksImV4cCI6MjA0NDk5NDY3OX0.QtBTznNdmkmRYYkvLUVHigWS26YyZjICPV2LaUtq34Y",
-        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_YW1hemluZy1jYXQtNzcuY2xlcmsuYWNjb3VudHMuZGV2JA"
-      }
+      "channel": "production"
     }
   },
   "submit": {

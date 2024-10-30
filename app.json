@@ -18,7 +18,7 @@
       "entitlements": {
         "aps-environment": "production"
       },
-      "buildNumber": "2"
+      "buildNumber": "5"
     },
     "android": {
       "adaptiveIcon": {
@@ -66,6 +66,12 @@
       "eas": {
         "projectId": "92a5323d-e689-4560-973a-3b20a9695f1d"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/92a5323d-e689-4560-973a-3b20a9695f1d"
     }
   }
 }

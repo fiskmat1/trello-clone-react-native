@@ -26,11 +26,11 @@ export default function Index() {
   const [authType, setAuthType] = useState<ModalType | null>(null);
 
   const openLink = async () => {
-    WebBrowser.openBrowserAsync('https://galaxies.dev');
+    WebBrowser.openBrowserAsync('https://clientclub.se');
   };
 
   const openActionSheet = async () => {
-    const options = ['View support docs', 'Contact us', 'Cancel'];
+    const options = ['Contact us', 'Cancel'];
     const cancelButtonIndex = 2;
 
     showActionSheetWithOptions(
