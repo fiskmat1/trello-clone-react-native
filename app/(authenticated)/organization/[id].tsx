@@ -11,7 +11,7 @@ import {
   Modal,
 } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
-import { Coins, Info, PackageOpen, ArrowRight, Maximize2, Maximize, Gift, X } from 'lucide-react-native';
+import { Coins, Info, PackageOpen, ArrowRight, Maximize2, Maximize, Gift, X, ChevronRight } from 'lucide-react-native';
 import { useSession } from '@clerk/clerk-expo';
 import Animated, { useAnimatedStyle, withSpring, LinearTransition, FadeIn, FadeOut } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
@@ -19,7 +19,7 @@ import tw from 'tailwind-react-native-classnames';
 import LottieView from 'lottie-react-native'
 import QRCode from 'react-native-qrcode-svg';
 import CryptoJS from "react-native-crypto-js";
-import logoCoinTransparent from '@/assets/images/logoCoinTransparentFull.png';
+import logoCoinTransparent from '@/assets/images2/logoloyaltytransparent.png';
 import logoCoinTransparentExtra from '@/assets/images/logoCoinextra.png';
 
 type OrganizationRouteProp = RouteProp<{ params: { id: string; appuserId: string; getToken: string } }, 'params'>;
@@ -244,8 +244,8 @@ const OrganizationPage = () => {
                   <View style={{ flex: 1 }}>
                     <Text style={styles.rewardTitle}>{reward.title}</Text>
                     <View style={tw`flex-row items-center`}>
-                    <Text style={styles.rewardDescription}>See more</Text>
-                    <ArrowRight size={11} stroke={'#888'} style={tw`ml-1`}/>
+                    <Text style={styles.rewardDescription}>Se mer</Text>
+                    <ChevronRight size={11} stroke={'#888'} style={tw`mt-0.5`}/>
                     </View>
                   </View>
                   <TouchableOpacity 

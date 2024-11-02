@@ -18,10 +18,19 @@ import tw from 'tailwind-react-native-classnames';
 import { Info, User, Store, Glasses, Soup, BookMarked, Coins } from 'lucide-react-native';
 import { BlurView } from 'expo-blur';
 import { Colors } from '@/constants/Colors';
-import logoCoinTransparent from '@/assets/images/logoCoinTransparentFull.png';
-import logoCoinTransparentExtra from '@/assets/images/logoCoinextra.png';
+import logoCoinTransparent from '@/assets/images2/logoloyaltytransparent.png';
+import logoCoinTransparentExtra from '@/assets/images2/bannerloyalty.png';
+import logoSite from '@/assets/images2/logoloyalty123.png'
 
-const backgroundImageUrl = "https://i.imgur.com/xuU9pfX.png";
+const backgroundImageUrl = "";
+
+const backgroundImages = {
+  restaurants: require('@/assets/images2/burger.gif'),
+  explore: require('@/assets/images2/location.gif'),
+  stores: require('@/assets/images2/shopping3.gif'),
+  saved: require('@/assets/images2/coin123.gif'),
+  
+};
 
 const Page = () => {
   const [organizations, setOrganizations] = useState([]);
@@ -89,15 +98,35 @@ const Page = () => {
   };
 
   return (
-    <ImageBackground
-      source={{ uri: backgroundImageUrl }}
-      style={{ flex: 1 }}
-      resizeMode="cover"
-    >
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    
+      <SafeAreaView style={{ flex: 1, backgroundColor:'white' }} edges={['top']}>
         <View style={styles.container}>
           <View style={styles.headerContainer}>
-            <Text style={tw`font-bold text-3xl text-black`}>ClientClub</Text>
+            <View style={tw`flex-row items-center`}>
+            <View
+              style={{
+                shadowColor: '#000',
+                shadowOffset: { width: 5, height: 5 },
+                shadowOpacity: 0.13,
+                shadowRadius: 6,
+                borderRadius: 10,
+                elevation: 5, // Android shadow
+                overflow: 'visible', // Ensure the shadow is not cut off
+                marginRight: 8, // Adds space between image and text
+              }}
+            >
+              <Image
+                source={logoSite}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 12,
+                   // If needed for rounded edges
+                }}
+              />
+            </View>
+            <Text style={tw`font-bold text-3xl text-black `}>ClientClub</Text>
+            </View>
             <TouchableOpacity onPress={handleAccountPress}>
             <BlurView intensity={20} tint="light" style={styles.userIconBackground}>
               <User stroke={'#5A5A5A'} />
@@ -111,7 +140,11 @@ const Page = () => {
             refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchOrganizations} />}
           >
             <View style={styles.categoriesContainer}>
+
+             
               <BlurView intensity={50} tint="light" style={[styles.categoryCard, styles.cardOne]}>
+                <ImageBackground source={backgroundImages.restaurants} style={{flex:1}}>
+                  <View style={styles.innerContent}>
                 <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
                   <Text style={styles.categoryTitle}>Restauranger</Text>
                   <Text style={styles.categoryDesc}>Favoritmaten till dörren</Text>
@@ -119,9 +152,14 @@ const Page = () => {
                     <Soup stroke={'#5A5A5A'} size={20} />
                   </View>
                 </TouchableOpacity>
+                </View>
+                </ImageBackground>
               </BlurView>
+              
 
               <BlurView intensity={50} tint="light" style={[styles.categoryCard, styles.cardTwo]}>
+              <ImageBackground source={null} style={{flex:1}}>
+              <View style={styles.innerContent}>
                 <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
                   <Text style={styles.categoryTitle}>Utforska</Text>
                   <Text style={styles.categoryDesc}>Utforska butiker</Text>
@@ -129,9 +167,13 @@ const Page = () => {
                     <Glasses stroke={'#5A5A5A'} size={20} />
                   </View>
                 </TouchableOpacity>
+                </View>
+                </ImageBackground>
               </BlurView>
 
               <BlurView intensity={50} tint="light" style={[styles.categoryCard, styles.cardThree]}>
+              <ImageBackground source={backgroundImages.stores} style={{flex:1}}>
+              <View style={styles.innerContent}>
                 <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
                   <Text style={styles.categoryTitle}>Butiker</Text>
                   <Text style={styles.categoryDesc}>ICA, Hemmakväll</Text>
@@ -139,9 +181,13 @@ const Page = () => {
                     <Store stroke={'#5A5A5A'} size={20} />
                   </View>
                 </TouchableOpacity>
+                </View>
+                </ImageBackground>
               </BlurView>
 
               <BlurView intensity={50} tint="light" style={[styles.categoryCard, styles.cardFour]}>
+              <ImageBackground source={null} style={{flex:1}}>
+              <View style={styles.innerContent}>
                 <TouchableOpacity onPress={handleSavedPress} style={{ flex: 1 }}>
                   <Text style={styles.categoryTitle}>Sparade</Text>
                   <Text style={styles.categoryDesc}>Sparade butiker</Text>
@@ -149,7 +195,10 @@ const Page = () => {
                     <BookMarked stroke={'#5A5A5A'} size={20} />
                   </View>
                 </TouchableOpacity>
+                </View>
+                </ImageBackground>
               </BlurView>
+              
             </View>
 
             <View style={tw`flex-row items-center mt-5`}>
@@ -215,7 +264,7 @@ const Page = () => {
                         <View style={styles.orgDetails}>
                           <Text style={styles.orgName}>{org.name}</Text>
                           <View style={styles.orgInfoContainer}>
-                            <Coins size={14} color="orange" style={styles.coinIcon} />
+                          <Image source={logoCoinTransparent} style={styles.coinImage} />
                             <Text style={styles.orgInfo}>• samla poäng • {org.category}</Text>
                           </View>
                           <Text style={styles.orgDeliveryInfo}>Se mer</Text>
@@ -229,7 +278,7 @@ const Page = () => {
           </ScrollView>
         </View>
       </SafeAreaView>
-    </ImageBackground>
+  
   );
 };
 
@@ -307,11 +356,14 @@ const styles = StyleSheet.create({
   },
   categoryCard: {
     width: '49%',
-    padding: 15,
     borderRadius: 7,
     marginTop: 10,
     justifyContent: 'flex-start',
     overflow: 'hidden',
+  },
+  innerContent: {
+    flex: 1,
+    padding: 15, // Only affects text and icon, not background image
   },
   cardOne: {
     backgroundColor: 'rgba(0, 0, 0, 0.005)',

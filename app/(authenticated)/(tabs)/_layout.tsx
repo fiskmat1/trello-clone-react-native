@@ -63,6 +63,7 @@ const Layout = () => {
       <Tabs.Screen
         name="saved"
         options={{
+          headerShown: false,
           headerStyle: {
             elevation: 0, // Remove shadow on Android
             shadowOpacity: 0, // Remove shadow on iOS
@@ -77,6 +78,7 @@ const Layout = () => {
       <Tabs.Screen
         name="account"
         options={{
+          headerShown: false,
           headerStyle: {
             elevation: 0, // Remove shadow on Android
             shadowOpacity: 0, // Remove shadow on iOS

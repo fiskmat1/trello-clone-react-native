@@ -26,7 +26,7 @@ import { Colors } from '@/constants/Colors';
 import { useAuth } from '@clerk/clerk-expo';
 import tw from 'tailwind-react-native-classnames';
 
-const backgroundImageUrl = "https://i.imgur.com/xuU9pfX.png";
+const backgroundImageUrl = "";
 const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
 type Organization = {
@@ -301,6 +301,7 @@ const Page = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white'
   },
   searchBar: {
     height: 37,

@@ -53,6 +53,7 @@
     "expo-splash-screen": "~0.27.6",
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
+    "expo-updates": "~0.25.27",
     "expo-web-browser": "~13.0.3",
     "lottie-react-native": "6.7.0",
     "lucide-react-native": "^0.453.0",
@@ -87,8 +88,7 @@
     "tailwind-merge": "^2.5.4",
     "tailwind-react-native-classnames": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
-    "zeego": "^1.10.0",
-    "expo-updates": "~0.25.27"
+    "zeego": "^1.10.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

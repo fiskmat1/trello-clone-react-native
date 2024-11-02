@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#063BD1"
+      "backgroundColor": "#ffffff"
     },
     "ios": {
       "supportsTablet": true,
@@ -18,7 +18,13 @@
       "entitlements": {
         "aps-environment": "production"
       },
-      "buildNumber": "5"
+      "buildNumber": "9",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "ClientClub behöver åtkomst till din plats för att visa närliggande butiker och möjliggöra platsbaserad verifiering.",
+        "NSCameraUsageDescription": "ClientClub needs access to your camera to scan QR codes at participating stores.",
+        "NSPhotoLibraryUsageDescription": "ClientClub needs access to your photo library to upload profile or receipt images.",
+        "NSMicrophoneUsageDescription": "ClientClub needs access to your microphone to enable audio features within the app."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -28,7 +34,8 @@
       "package": "com.supersimon.trelloClone",
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.CAMERA"
+        "android.permission.CAMERA",
+        "android.permission.ACCESS_FINE_LOCATION"
       ]
     },
     "web": {
@@ -43,15 +50,15 @@
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends.",
-          "cameraPermission": "The app accesses your camera to let you take photos.",
+          "cameraPermission": "ClientClub behöver åtkomst till din kamera för att skanna QR-koder i deltagande butiker.",
           "microphonePermission": "The app accesses your microphone to let you record audio."
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
-          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera for scanning QR Codes",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone to enable audio features",
           "recordAudioAndroid": true
         }
       ]

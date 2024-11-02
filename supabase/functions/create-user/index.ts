@@ -4,7 +4,7 @@ import { Webhook } from "https://cdn.jsdelivr.net/npm/svix@1.38.1-next-acd2f7c59
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const webhookSecret = Deno.env.get('CLERK_SIGNING_SECRET')!; // Clerk's webhook signing secret
+const webhookSecret = Deno.env.get('CLERK_SIGNING_SECRET_PRODUCTION_SECOND')!; // Clerk's webhook signing secret
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 

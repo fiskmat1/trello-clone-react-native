@@ -18,9 +18,9 @@ import tw from 'tailwind-react-native-classnames';
 import { BlurView } from 'expo-blur';
 import { useNavigation } from '@react-navigation/native';
 import { Bookmark, ChevronRight } from 'lucide-react-native';
-import logoCoinTransparentExtra from '@/assets/images/logoCoinextra.png';
+import logoCoinTransparentExtra from '@/assets/images2/logoloyaltytransparent.png';
 
-const backgroundImageUrl = "https://i.imgur.com/xuU9pfX.png";
+const backgroundImageUrl = "";
 
 const Page = () => {
   const { userId } = useAuth();
@@ -144,7 +144,7 @@ const Page = () => {
                 </BlurView>
               </TouchableOpacity>
             )}
-            ListEmptyComponent={<Text style={{ textAlign: 'center' }}>No organizations found</Text>}
+            ListEmptyComponent={<Text style={{ textAlign: 'center' }}>Inga sparade butiker</Text>}
           />
           </BlurView>
           </View>
@@ -222,10 +222,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   coinImage: {
-    width: 35,
-    height: 35,
+    width: 20,
+    height: 20,
     alignSelf: 'center',
-    marginLeft: -4
+    marginLeft: 0
  
 
   },
