@@ -20,7 +20,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Bookmark, ChevronRight } from 'lucide-react-native';
 import logoCoinTransparentExtra from '@/assets/images2/logoloyaltytransparent.png';
 
-const backgroundImageUrl = "";
+
 
 const Page = () => {
   const { userId } = useAuth();
@@ -84,12 +84,8 @@ const Page = () => {
   }
 
   return (
-    <ImageBackground
-      source={{ uri: backgroundImageUrl }}
-      style={{ flex: 1 }}
-      resizeMode="cover"
-    >
-      <SafeAreaView style={{ flex: 1 }} edges={['top']}>
+    
+      <SafeAreaView style={{ flex: 1, backgroundColor:'white' }} edges={['top']}>
         <View style={{ flex: 1, padding: 20 }}>
         <BlurView intensity={80} tint="light" style={[styles.sectionCard]}>
           <View style={tw`flex-row`}>
@@ -118,7 +114,7 @@ const Page = () => {
                     visible={!loading}>
                     <Image
                       source={{
-                        uri: organization.image || 'https://images.unsplash.com/photo-1660792709474-cc1e1e4c88ba?q=80&w=2324&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+                        uri: organization.image || 'https://i.imgur.com/ZJEss0Q.png'
                       }}
                       style={styles.cardImage}
                     />
@@ -150,7 +146,7 @@ const Page = () => {
           </View>
         </View>
       </SafeAreaView>
-    </ImageBackground>
+   
   );
 };
 

@@ -19,7 +19,7 @@ import { Info, User, Store, Glasses, Soup, BookMarked, Coins } from 'lucide-reac
 import { BlurView } from 'expo-blur';
 import { Colors } from '@/constants/Colors';
 import logoCoinTransparent from '@/assets/images2/logoloyaltytransparent.png';
-import logoCoinTransparentExtra from '@/assets/images2/bannerloyalty.png';
+import logoCoinTransparentExtra from '@/assets/images2/banner123.png';
 import logoSite from '@/assets/images2/logoloyalty123.png'
 
 const backgroundImageUrl = "";
@@ -147,7 +147,7 @@ const Page = () => {
                   <View style={styles.innerContent}>
                 <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
                   <Text style={styles.categoryTitle}>Restauranger</Text>
-                  <Text style={styles.categoryDesc}>Favoritmaten till dörren</Text>
+                  <Text style={styles.categoryDesc}>Upptäck restauranger</Text>
                   <View style={styles.iconContainer}>
                     <Soup stroke={'#5A5A5A'} size={20} />
                   </View>
@@ -176,7 +176,7 @@ const Page = () => {
               <View style={styles.innerContent}>
                 <TouchableOpacity onPress={handleCardPress} style={{ flex: 1 }}>
                   <Text style={styles.categoryTitle}>Butiker</Text>
-                  <Text style={styles.categoryDesc}>ICA, Hemmakväll</Text>
+                  <Text style={styles.categoryDesc}>Upptäck butiker</Text>
                   <View style={styles.iconContainer}>
                     <Store stroke={'#5A5A5A'} size={20} />
                   </View>

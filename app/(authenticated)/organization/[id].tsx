@@ -20,7 +20,7 @@ import LottieView from 'lottie-react-native'
 import QRCode from 'react-native-qrcode-svg';
 import CryptoJS from "react-native-crypto-js";
 import logoCoinTransparent from '@/assets/images2/logoloyaltytransparent.png';
-import logoCoinTransparentExtra from '@/assets/images/logoCoinextra.png';
+import logoCoinTransparentExtra from '@/assets/images2/banner123.png';
 
 type OrganizationRouteProp = RouteProp<{ params: { id: string; appuserId: string; getToken: string } }, 'params'>;
 

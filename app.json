@@ -2,7 +2,7 @@
   "expo": {
     "name": "ClientClub",
     "slug": "ClientClub",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -18,7 +18,7 @@
       "entitlements": {
         "aps-environment": "production"
       },
-      "buildNumber": "9",
+      "buildNumber": "1",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "ClientClub behöver åtkomst till din plats för att visa närliggande butiker och möjliggöra platsbaserad verifiering.",
         "NSCameraUsageDescription": "ClientClub needs access to your camera to scan QR codes at participating stores.",
